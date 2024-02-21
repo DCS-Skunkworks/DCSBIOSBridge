@@ -117,8 +117,6 @@ Write-Host "Getting file info" -foregroundcolor "Green"
 $file_version = (Get-Command $publishPath\DCSBIOSDataBroker.exe).FileVersionInfo.FileVersion
 Write-Host "File version is $file_version" -foregroundcolor "Green"
 
-exit 0
-
 #Compressing release folder to destination
 Write-Host "Destination for zip file:" $env:brokerReleaseDestinationFolderPath"\DCSBIOSDataBroker_x64_$file_version.zip" -foregroundcolor "Green"
 Compress-Archive -Force -Path $publishPath\* -DestinationPath $env:brokerReleaseDestinationFolderPath"\DCSBIOSDataBroker_x64_$file_version.zip"
