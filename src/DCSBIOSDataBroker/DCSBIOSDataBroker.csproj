@@ -1,0 +1,111 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <Company>DCS-Skunkworks</Company>
+    <Description>DCS-BIOS &lt;-&gt; Serial Port Data Broker</Description>
+    <PackageProjectUrl>https://github.com/DCS-Skunkworks/DCSBIOSDataBroker</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/DCS-Skunkworks/DCSBIOSDataBroker</RepositoryUrl>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+    <PackageIcon>app_image_128x128.jpg</PackageIcon>
+	<ApplicationIcon>Images\app_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="images\109_AllAnnotations_RedWarning_256.png" />
+    <None Remove="images\112_RefreshArrow_Green_32x32_72.png" />
+    <None Remove="images\app_icon.ico" />
+    <None Remove="images\app_image.png" />
+    <None Remove="images\black.png" />
+    <None Remove="images\broker_schema.png" />
+    <None Remove="images\close.png" />
+    <None Remove="images\dot.jpg" />
+    <None Remove="images\gear-image.png" />
+    <None Remove="images\green.png" />
+    <None Remove="images\NewDocument_32x32.png" />
+    <None Remove="images\Notepad_32x32.png" />
+    <None Remove="images\off_button.png" />
+    <None Remove="images\on_button.png" />
+    <None Remove="images\OpenPL.bmp" />
+    <None Remove="images\red.png" />
+    <None Remove="images\SaveHL.bmp" />
+    <None Remove="images\Search.png" />
+    <None Remove="images\yellow1.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="5.2.8" />
+    <PackageReference Include="Octokit" Version="9.1.2" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\DCSFlightpanels\src\ClassLibraryCommon\ClassLibraryCommon.csproj" />
+    <ProjectReference Include="..\..\..\DCSFlightpanels\src\DCS-BIOS\DCS-BIOS.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="AssemblyInfo.cs" />
+    <Resource Include="images\109_AllAnnotations_RedWarning_256.png" />
+    <Resource Include="images\112_RefreshArrow_Green_32x32_72.png" />
+    <Resource Include="images\app_icon.ico" />
+    <Resource Include="images\app_image.jpg" />
+    <Resource Include="images\app_image_128x128.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </Resource>
+    <Resource Include="images\black.png" />
+    <Resource Include="images\broker_schema.png" />
+    <Resource Include="images\close.png" />
+    <Resource Include="images\dot.jpg" />
+    <Resource Include="images\gear-image.png" />
+    <Resource Include="images\green.png" />
+    <Resource Include="images\NewDocument_32x32.png" />
+    <Resource Include="images\Notepad_32x32.png" />
+    <Resource Include="images\off_button.png" />
+    <Resource Include="images\on_button.png" />
+    <Resource Include="images\OpenPL.bmp" />
+    <Resource Include="images\red.png" />
+    <Resource Include="images\SaveHL.bmp" />
+    <Resource Include="images\Search.png" />
+    <Resource Include="images\yellow1.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="images\app_image.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="images\app_image_128x128.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
