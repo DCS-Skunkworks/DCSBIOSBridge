@@ -17,7 +17,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <PackageIcon>app_image_128x128.jpg</PackageIcon>
-    <ApplicationIcon>Images\app_icon.ico</ApplicationIcon>
+    <ApplicationIcon>images\app_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="AssemblyInfo.cs" />

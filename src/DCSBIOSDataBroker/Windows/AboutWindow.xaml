@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="About DCS-BIOS Data Broker" Height="400" Width="600" Loaded="WindowLoaded" Icon="/Images/app_image.jpg" >
+        Title="About DCS-BIOS Data Broker" Height="400" Width="600" Loaded="WindowLoaded" Icon="/images/app_image.jpg" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -17,7 +17,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Image Name="ImageSchema"  Source="/Images/broker_schema.png" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"  Grid.RowSpan="3" Tag="False" MinWidth="450" RenderOptions.BitmapScalingMode="Fant" IsEnabled="False" />
+        <Image Name="ImageSchema"  Source="/images/broker_schema.png" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"  Grid.RowSpan="3" Tag="False" MinWidth="450" RenderOptions.BitmapScalingMode="Fant" IsEnabled="False" />
         
         <WrapPanel Orientation="Vertical" Grid.Column="1" Grid.Row="3" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10,10,10,10">
             <Button Name="ButtonOk" Content="Ok" VerticalAlignment="Bottom" Width="70" Click="ButtonOk_OnClick"></Button>

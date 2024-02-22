@@ -14,14 +14,14 @@
                 <Trigger Property="IsChecked" Value="True">
                     <Setter Property="Content">
                         <Setter.Value>
-                            <Image Source="/Images/on_button.png" Width="32" RenderOptions.BitmapScalingMode="Fant"  />
+                            <Image Source="/images/on_button.png" Width="32" RenderOptions.BitmapScalingMode="Fant"  />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
                 <Trigger Property="IsChecked" Value="False">
                     <Setter Property="Content">
                         <Setter.Value>
-                            <Image Source="/Images/off_button.png" Width="32" RenderOptions.BitmapScalingMode="Fant"  />
+                            <Image Source="/images/off_button.png" Width="32" RenderOptions.BitmapScalingMode="Fant"  />
                         </Setter.Value>
                     </Setter>
                 </Trigger>
@@ -75,7 +75,7 @@
 
             <StackPanel Grid.Column="5" Grid.Row="0" Grid.RowSpan="4" >
                 <Button HorizontalAlignment="Right">
-                    <Image Source="/Images/close.png" RenderOptions.BitmapScalingMode="Fant" Width="15" ToolTip="Remove from Profile" Cursor="Hand"  MouseDown="ButtonRemoveSerialPort_OnMouseDown">
+                    <Image Source="/images/close.png" RenderOptions.BitmapScalingMode="Fant" Width="15" ToolTip="Remove from Profile" Cursor="Hand"  MouseDown="ButtonRemoveSerialPort_OnMouseDown">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Style.Triggers>

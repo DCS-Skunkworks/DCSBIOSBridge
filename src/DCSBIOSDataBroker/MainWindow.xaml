@@ -76,10 +76,10 @@
                     </Image>
                 </Button>
                 <Button Click="ButtonOpen_OnClick">
-                    <Image Source="/Images/OpenPL.bmp" ToolTip="Open"/>
+                    <Image Source="/images/OpenPL.bmp" ToolTip="Open"/>
                 </Button>
                 <Button Click="ButtonOpenInEditor_OnClick">
-                    <Image Source="/Images/Notepad_32x32.png" Name="ButtonImageNotepad"   ToolTip="Open text editor">
+                    <Image Source="/images/Notepad_32x32.png" Name="ButtonImageNotepad"   ToolTip="Open text editor">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Style.Triggers>
@@ -92,7 +92,7 @@
                     </Image>
                 </Button>
                 <Button Click="ButtonSearchForSerialPorts_OnClick">
-                    <Image Source="/Images/Search.png" RenderOptions.BitmapScalingMode="Fant"  ToolTip="Show all Serial Ports">
+                    <Image Source="/images/Search.png" RenderOptions.BitmapScalingMode="Fant"  ToolTip="Show all Serial Ports">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Style.Triggers>
