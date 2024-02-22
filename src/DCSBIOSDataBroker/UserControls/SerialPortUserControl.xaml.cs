@@ -147,7 +147,7 @@ namespace DCSBIOSDataBroker.UserControls
                         break;
                     case SerialPortStatus.DCSBIOSCommandCalled:
                         {
-                            LastDCSBIOSCommand = e.DCSBIOSCommandCalled;
+                            LastDCSBIOSCommand = e.DCSBIOSCommandCalled ;
                             break;
                         }
                     case SerialPortStatus.Settings:
@@ -431,7 +431,7 @@ namespace DCSBIOSDataBroker.UserControls
             get => _lastDCSBIOSCommand;
             set
             {
-                _lastDCSBIOSCommand = value;
+                _lastDCSBIOSCommand = string.IsNullOrEmpty(value) ? string.Empty : value.Replace("_", "__"); 
                 LastDCSBIOSCommands = value;
                 // Call OnPropertyChanged whenever the property is updated
                 OnPropertyChanged();

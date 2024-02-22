@@ -39,11 +39,11 @@ namespace DCSBIOSDataBroker.SerialPortClasses
 
         private readonly SerialPort _serialPort;
         private readonly ISerialReceiver _serialReceiver;
-        private readonly Channel<byte[]> _serialDataToWrite = Channel.CreateUnbounded<byte[]>();
+        private readonly Channel<byte[]> _serialDataChannel = Channel.CreateUnbounded<byte[]>();
         private readonly AutoResetEvent _serialDataWaitingForWriteResetEvent = new(false);
         private bool _shutdown;
 
-        public SerialPortSetting SerialPortSetting { get; set; } = new();
+        public SerialPortSetting SerialPortSetting { get; set; }
 
         public SerialPortShell(SerialPortSetting serialPortSetting)
         {
@@ -172,10 +172,10 @@ namespace DCSBIOSDataBroker.SerialPortClasses
 
         private async Task QueueSerialData(byte[] data)
         {
-            if (data == null || data.Length == 0) return;
+            if (data == null || data.Length == 0 || !_serialPort.IsOpen) return;
 
             var cts = new CancellationTokenSource(Constants.MS100);
-            await _serialDataToWrite.Writer.WriteAsync(data, cts.Token);
+            await _serialDataChannel.Writer.WriteAsync(data, cts.Token);
             _serialDataWaitingForWriteResetEvent.Set();
         }
 
@@ -189,7 +189,7 @@ namespace DCSBIOSDataBroker.SerialPortClasses
                     if (_shutdown || _serialPort == null || !_serialPort.IsOpen) break;
 
                     var cts = new CancellationTokenSource(Constants.MS100);
-                    var serialDataArray = await _serialDataToWrite.Reader.ReadAsync(cts.Token);
+                    var serialDataArray = await _serialDataChannel.Reader.ReadAsync(cts.Token);
 
                     var cts2 = new CancellationTokenSource(Constants.MS200);
                     await _serialPort.BaseStream.WriteAsync(serialDataArray, 0, serialDataArray.Length, cts2.Token);
