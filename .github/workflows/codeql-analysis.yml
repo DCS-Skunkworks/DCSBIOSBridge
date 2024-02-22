@@ -54,7 +54,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-        dotnet build src/DCSBIOSBroker/DCSBIOSBroker.csproj /p:EnableWindowsTargeting=true --self-contained false -f net6.0-windows -r win-x64 -c Release /p:DebugType=None /p:DebugSymbols=false
+        dotnet build src/DCSBIOSDataBroker/DCSBIOSDataBroker.csproj /p:EnableWindowsTargeting=true --self-contained false -f net6.0-windows -r win-x64 -c Release /p:DebugType=None /p:DebugSymbols=false
     #   make bootstrap
     #   make release
 
