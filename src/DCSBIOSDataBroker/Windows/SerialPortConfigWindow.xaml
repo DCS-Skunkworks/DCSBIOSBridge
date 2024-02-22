@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="SerialPort Configuration" Height="350" Width="300" Icon="/Images/app_image.jpg" UseLayoutRounding="True" RenderOptions.BitmapScalingMode="Fant" Loaded="SerialPortConfigWindow_OnLoaded">
+        Title="SerialPort Configuration" Height="350" Width="300" Icon="/images/app_image.jpg" UseLayoutRounding="True" RenderOptions.BitmapScalingMode="Fant" Loaded="SerialPortConfigWindow_OnLoaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />

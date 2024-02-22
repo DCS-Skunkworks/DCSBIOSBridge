@@ -17,7 +17,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <PackageIcon>app_image_128x128.jpg</PackageIcon>
-    <ApplicationIcon>Images\app_icon.ico</ApplicationIcon>
+    <ApplicationIcon>images\app_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="AssemblyInfo.cs" />
@@ -50,8 +50,12 @@
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\DCSFlightpanels\src\ClassLibraryCommon\ClassLibraryCommon.csproj" />
-    <ProjectReference Include="..\..\..\DCSFlightpanels\src\DCS-BIOS\DCS-BIOS.csproj" />
+    <Reference Include="ClassLibraryCommon">
+      <HintPath>dll\ClassLibraryCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="DCS-BIOS">
+      <HintPath>dll\DCS-BIOS.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="AssemblyInfo.cs" />

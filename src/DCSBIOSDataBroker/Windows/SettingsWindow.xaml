@@ -7,7 +7,7 @@
         Title="Settings" Height="400" Width="300"
         Loaded="SettingsWindow_OnLoaded"
         WindowStartupLocation="CenterScreen" 
-        KeyDown="SettingsWindow_OnKeyDown" Icon="/Images/app_icon.ico">
+        KeyDown="SettingsWindow_OnKeyDown" Icon="/images/app_icon.ico">
     <Grid Margin="-4,0,4,0">
         <Grid.RowDefinitions>
             <RowDefinition Height="20*"/>
