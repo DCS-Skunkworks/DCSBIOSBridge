@@ -1,12 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>DCSBIOSDataBroker</PackageId>
+    <Version>1.0.0</Version>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
     <Company>DCS-Skunkworks</Company>
     <Description>DCS-BIOS &lt;-&gt; Serial Port Data Broker</Description>
     <PackageProjectUrl>https://github.com/DCS-Skunkworks/DCSBIOSDataBroker</PackageProjectUrl>
@@ -14,13 +17,11 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <PackageIcon>app_image_128x128.jpg</PackageIcon>
-	<ApplicationIcon>Images\app_icon.ico</ApplicationIcon>
+    <ApplicationIcon>Images\app_icon.ico</ApplicationIcon>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="AssemblyInfo.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <None Remove="images\109_AllAnnotations_RedWarning_256.png" />
     <None Remove="images\112_RefreshArrow_Green_32x32_72.png" />
@@ -42,19 +43,16 @@
     <None Remove="images\Search.png" />
     <None Remove="images\yellow1.png" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="NLog" Version="5.2.8" />
     <PackageReference Include="Octokit" Version="9.1.2" />
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\DCSFlightpanels\src\ClassLibraryCommon\ClassLibraryCommon.csproj" />
     <ProjectReference Include="..\..\..\DCSFlightpanels\src\DCS-BIOS\DCS-BIOS.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Resource Include="AssemblyInfo.cs" />
     <Resource Include="images\109_AllAnnotations_RedWarning_256.png" />
@@ -81,7 +79,6 @@
     <Resource Include="images\Search.png" />
     <Resource Include="images\yellow1.png" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -89,7 +86,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
   </ItemGroup>
-
   <ItemGroup>
     <None Update="images\app_image.jpg">
       <Pack>True</Pack>
@@ -107,5 +103,4 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-
 </Project>
