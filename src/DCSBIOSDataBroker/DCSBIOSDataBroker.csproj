@@ -18,6 +18,8 @@
     <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
     <PackageIcon>app_image_128x128.jpg</PackageIcon>
     <ApplicationIcon>images\app_icon.ico</ApplicationIcon>
+    <SelfContained>false</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="AssemblyInfo.cs" />
