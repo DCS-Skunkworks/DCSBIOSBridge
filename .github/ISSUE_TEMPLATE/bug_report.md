@@ -24,7 +24,7 @@ If applicable please post your settings file.
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Start DCSBIOSDataBroker
+1. Start DCSBIOSBridge
 2. Start DCS
 3. Start Mission
 4. Click Arduino switch
