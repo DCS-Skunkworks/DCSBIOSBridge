@@ -1,6 +1,8 @@
 # DCSBIOSBridge
  Handles communication between DCS-BIOS and serial ports
  
-![broker](https://github.com/DCS-Skunkworks/DCSBIOSBridge/assets/10453261/7906e68e-90b5-47d5-b3b7-bc275936bb7d)
+![dcsbiosbridge_gui](https://github.com/DCS-Skunkworks/DCSBIOSBridge/assets/10453261/98d2ec7a-44be-4571-9266-dfd7a2e21482)
 
-![schema](https://github.com/DCS-Skunkworks/DCSBIOSBridge/assets/10453261/6a27b55f-1e15-4013-864d-51251a6054dd)
+
+![broker_schema](https://github.com/DCS-Skunkworks/DCSBIOSBridge/assets/10453261/fecd6d6a-f50a-494c-b104-21a70edcba2c)
+
