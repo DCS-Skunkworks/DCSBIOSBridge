@@ -5,17 +5,17 @@ $publishPath = $scriptPath + "\_PublishTemp_\"
 $changeProjectVersion = Read-Host "Change Project Version? Y/N"
 
 #-------------------------------------------
-# Release version management DCSBIOSDataBroker
+# Release version management DCSBIOSBridge
 #-------------------------------------------
 Write-Host "Starting release version management" -foregroundcolor "Green"
 #Get Path to csproj
-$projectFilePath = $scriptPath + "\DCSBIOSDataBroker\DCSBIOSDataBroker.csproj"
+$projectFilePath = $scriptPath + "\DCSBIOSBridge\DCSBIOSBridge.csproj"
 If (-not(Test-Path $projectFilePath)) {
 	Write-Host "Fatal error. Project path not found: $projectPath" -foregroundcolor "Red"
 	exit
 }
 
-#Reading DCSBIOSDataBroker project file
+#Reading DCSBIOSBridge project file
 $xml = [xml](Get-Content $projectFilePath)
 [string]$assemblyVersion = $xml.Project.PropertyGroup.AssemblyVersion
 
@@ -63,9 +63,9 @@ if (($env:brokerReleaseDestinationFolderPath -eq $null) -or (-not (Test-Path $en
 
 <#
 #---------------------------------
-# Tests execution For DCSBIOSDataBroker
+# Tests execution For DCSBIOSBridge
 #---------------------------------
-Write-Host "Starting tests execution for DCSBIOSDataBroker" -foregroundcolor "Green"
+Write-Host "Starting tests execution for DCSBIOSBridge" -foregroundcolor "Green"
 $testPath = $scriptPath + "\Tests"
 Set-Location -Path $testPath
 dotnet test
@@ -75,7 +75,7 @@ if ( 0 -ne $testsLastExitCode ) {
 	Write-Host "Fatal error. Some unit tests failed." -foregroundcolor "Red"
 	exit
 }
-Write-Host "Finished tests execution for DCSBIOSDataBroker" -foregroundcolor "Green"
+Write-Host "Finished tests execution for DCSBIOSBridge" -foregroundcolor "Green"
 #>
 
 #---------------------------------
@@ -84,7 +84,7 @@ Write-Host "Finished tests execution for DCSBIOSDataBroker" -foregroundcolor "Gr
 #Cleaning previous publish
 Write-Host "Starting cleaning previous build" -foregroundcolor "Green"
 Set-Location -Path $scriptPath
-dotnet clean DCSBIOSDataBroker\DCSBIOSDataBroker.csproj -o $publishPath
+dotnet clean DCSBIOSBridge\DCSBIOSBridge.csproj -o $publishPath
 dotnet clean ControlReference\ControlReference.csproj -o $publishPath
 
 #Removing eventual previous non-splitted sample extensions
@@ -96,15 +96,15 @@ Write-Host "Starting Publish" -foregroundcolor "Green"
 Set-Location -Path $scriptPath
 
 
-Write-Host "Starting Publish DCSBIOSDataBroker" -foregroundcolor "Green"
-dotnet publish DCSBIOSDataBroker\DCSBIOSDataBroker.csproj --self-contained false -f net8.0-windows -r win-x64 -c Release -o $publishPath /p:DebugType=None /p:DebugSymbols=false
+Write-Host "Starting Publish DCSBIOSBridge" -foregroundcolor "Green"
+dotnet publish DCSBIOSBridge\DCSBIOSBridge.csproj --self-contained false -f net8.0-windows -r win-x64 -c Release -o $publishPath /p:DebugType=None /p:DebugSymbols=false
 
 $buildLastExitCode = $LastExitCode
 
-Write-Host "Build DCSBIOSDataBroker LastExitCode: $buildLastExitCode" -foregroundcolor "Green"
+Write-Host "Build DCSBIOSBridge LastExitCode: $buildLastExitCode" -foregroundcolor "Green"
 
 if ( 0 -ne $buildLastExitCode ) {
-	Write-Host "Fatal error. Build seems to have failed on DCSBIOSDataBroker. No Zip & copy will be done." -foregroundcolor "Red"
+	Write-Host "Fatal error. Build seems to have failed on DCSBIOSBridge. No Zip & copy will be done." -foregroundcolor "Red"
 	exit
 }
 
@@ -114,12 +114,12 @@ Remove-Item $publishPath\EmptyFiles -Force  -Recurse -ErrorAction SilentlyContin
 
 #Getting file info & remove revision from file_version
 Write-Host "Getting file info" -foregroundcolor "Green"
-$file_version = (Get-Command $publishPath\DCSBIOSDataBroker.exe).FileVersionInfo.FileVersion
+$file_version = (Get-Command $publishPath\DCSBIOSBridge.exe).FileVersionInfo.FileVersion
 Write-Host "File version is $file_version" -foregroundcolor "Green"
 
 #Compressing release folder to destination
-Write-Host "Destination for zip file:" $env:brokerReleaseDestinationFolderPath"\DCSBIOSDataBroker_x64_$file_version.zip" -foregroundcolor "Green"
-Compress-Archive -Force -Path $publishPath\* -DestinationPath $env:brokerReleaseDestinationFolderPath"\DCSBIOSDataBroker_x64_$file_version.zip"
+Write-Host "Destination for zip file:" $env:brokerReleaseDestinationFolderPath"\DCSBIOSBridge_x64_$file_version.zip" -foregroundcolor "Green"
+Compress-Archive -Force -Path $publishPath\* -DestinationPath $env:brokerReleaseDestinationFolderPath"\DCSBIOSBridge_x64_$file_version.zip"
 
 Write-Host "Finished publishing release version" -foregroundcolor "Green"
 

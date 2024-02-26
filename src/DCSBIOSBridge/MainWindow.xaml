@@ -1,0 +1,135 @@
+﻿<Window x:Class="DCSBIOSBridge.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DCSBIOSBridge"
+        xmlns:customControls="clr-namespace:ClassLibraryCommon.CustomControls;assembly=ClassLibraryCommon"
+        mc:Ignorable="d"    
+        Title="DCS-BIOS Bridge" 
+        Height="550" 
+        Width="1050" 
+        Loaded="MainWindow_OnLoaded" 
+        Closing="MainWindow_OnClosing" 
+        UseLayoutRounding="True" 
+        RenderOptions.BitmapScalingMode="Fant"
+        Icon="/images/app_icon.ico">
+    <Window.Resources>
+        <Style x:Key="ToolbarButton" TargetType="Button">
+            <Setter Property="Foreground" Value="Blue"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="5"/>
+                </Style>
+            </Style.Resources>
+        </Style>
+    </Window.Resources>
+    <Grid Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="26" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Menu Height="25" HorizontalAlignment="Stretch" Name="MainMenu" VerticalAlignment="Top" Grid.Column="0" Grid.Row="0" >
+            <MenuItem Header="File">
+                <MenuItem Header="Open" Name="MenuItemOpen" Click="MenuItemOpenClick"/>
+                <MenuItem Header="Save" Name="MenuItemSave" Click="MenuItemSave_OnClick"/>
+                <MenuItem Header="Save As.." Name="MenuItemSaveAs" Click="MenuItemSaveAs_OnClick" />
+                <Separator />
+                <MenuItem Name ="MenuItemErrorLog" Header="Open error log" Click="MenuItemErrorLog_OnClick" />
+                <Separator />
+                <MenuItem Header="Exit" Name="MenuItemExit" Click="MenuItemExit_OnClick" />
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Name ="MenuItemOptions" Header="Options" Click="MenuItemOptions_OnClick"/>
+            </MenuItem>
+            <MenuItem Header="Help" >
+                <MenuItem Header="About" Name="MenuItemAbout" Click="MenuItemAbout_OnClick"  />
+            </MenuItem>
+        </Menu>
+        <ToolBarTray Grid.Column="0" Grid.Row="1">
+            <ToolBar Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Top"  >
+                <Button Click="ButtonNew_OnClick">
+                    <Image Source="Images/NewDocument_32x32.png" ToolTip="New"/>
+                </Button>
+                <Button Click="ButtonSave_OnClick">
+                    <Image Source="Images/SaveHL.bmp" Name="ButtonImageSave"  ToolTip="Save">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </Button>
+                <Button Click="ButtonOpen_OnClick">
+                    <Image Source="/images/OpenPL.bmp" ToolTip="Open"/>
+                </Button>
+                <Button Click="ButtonOpenInEditor_OnClick">
+                    <Image Source="/images/Notepad_32x32.png" Name="ButtonImageNotepad"   ToolTip="Open text editor">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </Button>
+                <Button Click="ButtonSearchForSerialPorts_OnClick">
+                    <Image Source="/images/Search.png" RenderOptions.BitmapScalingMode="Fant"  ToolTip="Show all Serial Ports">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </Button>
+
+                <customControls:UserControlSpinningWheel Margin="10,0,0,0" x:Name="ControlSpinningWheel"/>
+
+                <Image Source="Images/on_button.png" Margin="30,0,0,0" MouseDown="ButtonOpenPorts_OnClick" ToolTip="Open all ports" MouseEnter="UIElement_OnMouseEnterCursorArrow" MouseLeave="UIElement_OnMouseLeaveCursorArrow"/>
+                <Image Source="Images/off_button.png" Margin="10,0,0,0" MouseDown="ButtonClosePorts_OnClick"  ToolTip="Close all ports" MouseEnter="UIElement_OnMouseEnterCursorArrow" MouseLeave="UIElement_OnMouseLeaveCursorArrow"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <ScrollViewer Grid.Row="3" Margin="5,5,5,5">
+            <WrapPanel Name="WrapPanelMain" Orientation="Horizontal"/>
+        </ScrollViewer>
+
+        <StatusBar HorizontalAlignment="Stretch" Height="26" Grid.Row="4" VerticalAlignment="Top" >
+            <StatusBarItem HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                <TextBlock Name="LabelVersionInformation" HorizontalAlignment="Right" Margin="10,0,10,0"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                <TextBlock Name="LabelDownloadNewVersion" HorizontalAlignment="Right" Margin="0,0,10,0" Visibility="Hidden" >
+                    <Hyperlink NavigateUri="https://github.com/DCS-Skunkworks/DCSBIOSBridge/releases" RequestNavigate="Hyperlink_OnRequestNavigate">
+                        Download New Version!
+                    </Hyperlink>
+                </TextBlock>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Stretch" HorizontalContentAlignment="Right">
+                <TextBlock Name="LabelInformation" HorizontalAlignment="Right" Margin="0,0,10,0" Width="300"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
