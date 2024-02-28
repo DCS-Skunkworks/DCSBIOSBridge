@@ -21,6 +21,7 @@ namespace DCSBIOSBridge.misc
 
         public SerialPortsProfileHandler()
         {
+            IsNewProfile = true;
             DBEventManager.AttachSerialPortStatusListener(this);
         }
 

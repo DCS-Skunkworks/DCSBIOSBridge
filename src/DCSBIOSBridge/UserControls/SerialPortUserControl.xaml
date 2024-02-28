@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
+             MinHeight="180"
+             MinWidth="180"
              d:DesignHeight="180" d:DesignWidth="200" Loaded="SerialPortUserControl_OnLoaded">
     <UserControl.Resources>
         <Style x:Key="LabelStyle" TargetType="Label">
@@ -27,14 +29,20 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        <ContextMenu x:Key="SerialPortContextMenu" x:Shared="False" Opened="SerialPortContextMenu_OnOpened">
-            <MenuItem Header="Configure" Name="ContextConfigureSerialPort" Click="MenuItemConfigureSerialPort_OnClick" />
-        </ContextMenu>
     </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
     <Border BorderBrush="Black" BorderThickness="2" CornerRadius="8,8,8,8" Margin="0,0,5,0">
         <Grid Margin="10,10,10,10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="20" />
+                <RowDefinition Height="30" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="20" />
                 <RowDefinition Height="20" />
@@ -51,8 +59,8 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="5">
-                <Label Name="LabelPort" Content="Serialport : " FontWeight="ExtraBold"/>
+            <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">
+                <Label Name="LabelPort" FontSize="17" FontWeight="Bold"/>
             </StackPanel>
 
             <StackPanel Grid.Column="0" Grid.Row="2" Grid.RowSpan="2" Grid.ColumnSpan="3">
@@ -73,9 +81,9 @@
                 <ToggleButton Name="ButtonConnection" Width="40" Height="40" Click="ButtonConnection_OnClick" Style="{StaticResource OnOffToggleImageStyle}" IsChecked="False" Cursor="Hand"  />
             </WrapPanel>
 
-            <StackPanel Grid.Column="5" Grid.Row="0" Grid.RowSpan="4" >
-                <Button HorizontalAlignment="Right">
-                    <Image Source="/images/close.png" RenderOptions.BitmapScalingMode="Fant" Width="15" ToolTip="Remove from Profile" Cursor="Hand"  MouseDown="ButtonRemoveSerialPort_OnMouseDown">
+            <DockPanel Grid.Column="3" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Right">
+                <Button  Margin="0,0,5,0" DockPanel.Dock="Left">
+                    <Image Source="/images/settings_image.png" RenderOptions.BitmapScalingMode="Fant" Width="25"  ToolTip="Configure serial port" Cursor="Hand"  MouseDown="SettingsButton_OnMouseDown">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Style.Triggers>
@@ -87,7 +95,20 @@
                         </Image.Style>
                     </Image>
                 </Button>
-            </StackPanel>
+                <Button DockPanel.Dock="Left">
+                    <Image Source="/images/close.png" RenderOptions.BitmapScalingMode="Fant" Width="25" ToolTip="Remove from Profile" Cursor="Hand"  MouseDown="ButtonRemoveSerialPort_OnMouseDown">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.5" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </Button>
+            </DockPanel>
         </Grid>
     </Border>
 </UserControl>

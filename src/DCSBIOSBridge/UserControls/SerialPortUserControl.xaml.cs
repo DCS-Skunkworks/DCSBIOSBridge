@@ -1,13 +1,9 @@
-﻿using System.Collections;
-using System.ComponentModel;
-using System.Globalization;
+﻿using System.ComponentModel;
 using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using DCS_BIOS.EventArgs;
-using DCS_BIOS.Interfaces;
 using DCSBIOSBridge.Events;
 using DCSBIOSBridge.Events.Args;
 using DCSBIOSBridge.Interfaces;
@@ -23,6 +19,7 @@ namespace DCSBIOSBridge.UserControls
         Hidden,
         Closed,
         Check,
+        DisposeDisabledPorts,
         DoDispose
     }
 
@@ -36,19 +33,19 @@ namespace DCSBIOSBridge.UserControls
         private double _bytesFromSerialPort;
         private readonly Queue<string> _lastDCSBIOSCommands = new(10);
         private const int MaxQueueSize = 10;
+        private bool _formLoaded;
 
         public SerialPortUserControl(SerialPortSetting serialPortSetting)
         {
             InitializeComponent();
             Name = serialPortSetting.ComPort;
             DataContext = this;
-            LabelPort.Content = "SerialPort : " + serialPortSetting.ComPort;
+            LabelPort.Content = serialPortSetting.ComPort;
             _serialPortShell = new SerialPortShell(serialPortSetting);
-            ContextMenu = (ContextMenu)Resources["SerialPortContextMenu"] ?? new ContextMenu();
-            ContextMenu.Tag = Name;
             DBEventManager.AttachSerialPortStatusListener(this);
             DBEventManager.AttachSerialPortUserControlListener(this);
             DBEventManager.AttachDataReceivedListener(this);
+            IsEnabled = SerialPortShell.SerialPortCurrentlyExists(serialPortSetting.ComPort);
         }
 
         #region IDisposable Support
@@ -89,7 +86,10 @@ namespace DCSBIOSBridge.UserControls
         {
             try
             {
+                if (_formLoaded) return;
+
                 SetWindowState();
+                _formLoaded = true;
             }
             catch (Exception ex)
             {
@@ -147,7 +147,7 @@ namespace DCSBIOSBridge.UserControls
                         break;
                     case SerialPortStatus.DCSBIOSCommandCalled:
                         {
-                            LastDCSBIOSCommand = e.DCSBIOSCommandCalled ;
+                            LastDCSBIOSCommand = e.DCSBIOSCommandCalled;
                             break;
                         }
                     case SerialPortStatus.Settings:
@@ -176,7 +176,14 @@ namespace DCSBIOSBridge.UserControls
                         break;
                     case SerialPortUserControlStatus.Check:
                         {
-                            CheckValidity();
+                            CheckValidity(args.SerialPortSettings);
+                            break;
+                        }
+                    case SerialPortUserControlStatus.DisposeDisabledPorts:
+                        {
+                            if (IsEnabled) return;
+
+                            BroadCastClosedAndDispose(SerialPortUserControlStatus.Closed);
                             break;
                         }
                     case SerialPortUserControlStatus.DoDispose:
@@ -194,7 +201,7 @@ namespace DCSBIOSBridge.UserControls
             }
         }
 
-        private void CheckValidity()
+        private void CheckValidity(List<SerialPortSetting> serialPortSettings)
         {
             try
             {
@@ -203,16 +210,32 @@ namespace DCSBIOSBridge.UserControls
                 //Check that COM port which _serialPort has does exist, what more?
                 var ports = SerialPort.GetPortNames();
                 var found = false;
+
                 foreach (var port in ports)
                 {
-                    if (port.Equals(portName))
-                    {
-                        found = true;
-                    }
+                    if (!port.Equals(portName)) continue;
+
+                    found = true;
+                    Dispatcher.Invoke(() => IsEnabled = true);
+                    break;
                 }
                 if (!found)
                 {
-                    BroadCastClosedAndDispose(SerialPortUserControlStatus.Closed);
+                    // If this port is in the profile then it should be greyed out, not disposed
+                    if (serialPortSettings == null)
+                    {
+                        BroadCastClosedAndDispose(SerialPortUserControlStatus.Closed);
+                        return;
+                    }
+
+                    if (serialPortSettings.Any(o => o.ComPort == _serialPortShell.ComPort) == true)
+                    {
+                        Dispatcher.Invoke(() => IsEnabled = false);
+                    }
+                    else
+                    {
+                        BroadCastClosedAndDispose(SerialPortUserControlStatus.Closed);
+                    }
                 }
                 Dispatcher.Invoke(() => SetWindowState);
             }
@@ -247,7 +270,7 @@ namespace DCSBIOSBridge.UserControls
         {
             try
             {
-                if (_serialPortShell.IsOpen) return;
+                if (!IsEnabled || _serialPortShell.IsOpen) return;
                 _serialPortShell.Open();
             }
             catch (Exception ex)
@@ -262,7 +285,7 @@ namespace DCSBIOSBridge.UserControls
         {
             try
             {
-                if (!_serialPortShell.IsOpen) return;
+                if (!IsEnabled || !_serialPortShell.IsOpen) return;
                 _serialPortShell.Close();
             }
             catch (Exception ex)
@@ -292,39 +315,14 @@ namespace DCSBIOSBridge.UserControls
             Dispose(true);
         }
 
-        private void MenuItemConfigureSerialPort_OnClick(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var serialPortConfigWindow = new SerialPortConfigWindow(_serialPortShell.SerialPortSetting)
-                {
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                };
-                if (serialPortConfigWindow.ShowDialog() == true)
-                {
-                    _serialPortShell.SerialPortSetting = serialPortConfigWindow.SerialPortSetting;
-                    _serialPortShell.ApplyPortConfig();
-                    DBEventManager.BroadCastPortStatus(Name, SerialPortStatus.Settings, 0, null, _serialPortShell.SerialPortSetting);
-                }
-            }
-            catch (Exception ex)
-            {
-                Common.ShowErrorMessageBox(ex);
-            }
-        }
-
         public static void LoadSerialPorts(List<SerialPortSetting> serialPortsStringSettingsList)
         {
             try
             {
                 foreach (var serialPortSetting in serialPortsStringSettingsList)
                 {
-                    if (SerialPortShell.SerialPortCurrentlyExists(serialPortSetting.ComPort))
-                    {
-                        //OK create it.
-                        var serialPortUserControl = new SerialPortUserControl(serialPortSetting);
-                        DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Created, serialPortUserControl);
-                    }
+                    var serialPortUserControl = new SerialPortUserControl(serialPortSetting);
+                    DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Created, serialPortUserControl);
                 }
             }
             catch (Exception ex)
@@ -337,26 +335,6 @@ namespace DCSBIOSBridge.UserControls
         {
             get => _serialPortShell.SerialPortSetting;
             set => _serialPortShell.SerialPortSetting = value;
-        }
-
-        private void SerialPortContextMenu_OnOpened(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var menu = (ContextMenu)sender;
-                if (_serialPortShell != null && _serialPortShell.IsOpen)
-                {
-                    ((MenuItem)menu.Items[0] ?? new MenuItem()).IsEnabled = false;
-                }
-                else
-                {
-                    ((MenuItem)menu.Items[0] ?? new MenuItem()).IsEnabled = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                Common.ShowErrorMessageBox(ex);
-            }
         }
 
         public void OnDataReceived(DataReceivedEventArgs e)
@@ -431,14 +409,14 @@ namespace DCSBIOSBridge.UserControls
             get => _lastDCSBIOSCommand;
             set
             {
-                _lastDCSBIOSCommand = string.IsNullOrEmpty(value) ? string.Empty : value.Replace("_", "__"); 
+                _lastDCSBIOSCommand = string.IsNullOrEmpty(value) ? string.Empty : value.Replace("_", "__");
                 LastDCSBIOSCommands = value;
                 // Call OnPropertyChanged whenever the property is updated
                 OnPropertyChanged();
             }
         }
 
-        
+
         public string LastDCSBIOSCommands
 
         {
@@ -460,6 +438,27 @@ namespace DCSBIOSBridge.UserControls
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void SettingsButton_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                var serialPortConfigWindow = new SerialPortConfigWindow(_serialPortShell.SerialPortSetting)
+                {
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
+                if (serialPortConfigWindow.ShowDialog() == true)
+                {
+                    _serialPortShell.SerialPortSetting = serialPortConfigWindow.SerialPortSetting;
+                    _serialPortShell.ApplyPortConfig();
+                    DBEventManager.BroadCastPortStatus(Name, SerialPortStatus.Settings, 0, null, _serialPortShell.SerialPortSetting);
+                }
+            }
+            catch (Exception ex)
+            {
+                Common.ShowErrorMessageBox(ex);
+            }
         }
     }
 }

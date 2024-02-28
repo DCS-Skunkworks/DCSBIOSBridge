@@ -56,9 +56,9 @@ namespace DCSBIOSBridge.Events
             OnSerialPortUserControlStatusChanged -= usercontrolListener.OnSerialPortUserControlStatusChanged;
         }
 
-        public static void BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus status, SerialPortUserControl userControl)
+        public static void BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus status, SerialPortUserControl userControl = null, List<SerialPortSetting> serialPortSettings = null)
         {
-            OnSerialPortUserControlStatusChanged?.Invoke(new SerialPortUserControlArgs { Status = status, SerialPortUserControl = userControl });
+            OnSerialPortUserControlStatusChanged?.Invoke(new SerialPortUserControlArgs { Status = status, SerialPortUserControl = userControl, SerialPortSettings = serialPortSettings });
         }
 
         /*
