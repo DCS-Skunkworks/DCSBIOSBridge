@@ -63,7 +63,7 @@ namespace DCSBIOSBridge
                 _dcsBios?.Shutdown();
                 _dcsBios?.Dispose();
 
-                DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DoDispose, null);
+                DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DoDispose);
                 _serialPortService.CleanUp();
                 DBEventManager.DetachSerialPortStatusListener(this);
                 DBEventManager.DetachWindowsSerialPortEventListener(this);
@@ -204,6 +204,7 @@ namespace DCSBIOSBridge
                             break;
                         }
                     case SerialPortUserControlStatus.Check:
+                    case SerialPortUserControlStatus.DisposeDisabledPorts:
                     case SerialPortUserControlStatus.DoDispose:
                         break;
                     default:
@@ -257,8 +258,8 @@ namespace DCSBIOSBridge
                 lock (_lockObject)
                 {
                     // make all SerialPortUserControl check whether their SerialPort is OK
-                    // if not then dispose
-                    DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Check, null);
+                    // if new profile then don't send list, affects whether to remove or grey them out when removed from computer
+                    DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Check, null, _profileHandler.IsNewProfile ? null : _profileHandler.SerialPortSettings);
 
                     var currentPorts = SerialPort.GetPortNames();
 
@@ -469,6 +470,8 @@ namespace DCSBIOSBridge
                 {
                     return;
                 }
+
+                DisposeAllUserControls();
                 _profileHandler.Reset();
                 ListAllSerialPorts();
                 SetWindowState();
@@ -561,7 +564,7 @@ namespace DCSBIOSBridge
             try
             {
                 WrapPanelMain.Children.Clear();
-                DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DoDispose, null);
+                DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DoDispose);
                 _serialPortUserControls.Clear();
                 SetWindowState();
             }
@@ -710,6 +713,18 @@ namespace DCSBIOSBridge
         private void UIElement_OnMouseLeaveCursorArrow(object sender, MouseEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Arrow;
+        }
+
+        private void MenuItemRemoveDisabledPorts_OnClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DisposeDisabledPorts);
+            }
+            catch (Exception ex)
+            {
+                Common.ShowErrorMessageBox(ex);
+            }
         }
     }
 }

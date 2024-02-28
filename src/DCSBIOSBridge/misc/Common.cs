@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
-using DCSBIOSBridge.Properties;
 using NLog;
 using NLog.Targets;
 using NLog.Targets.Wrappers;

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyVersion>1.0.3</AssemblyVersion>
+    <AssemblyVersion>1.0.4</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>DCSBIOSBridge</PackageId>
@@ -43,6 +43,7 @@
     <None Remove="images\red.png" />
     <None Remove="images\SaveHL.bmp" />
     <None Remove="images\Search.png" />
+    <None Remove="images\settings_image.png" />
     <None Remove="images\yellow1.png" />
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +84,7 @@
     <Resource Include="images\red.png" />
     <Resource Include="images\SaveHL.bmp" />
     <Resource Include="images\Search.png" />
+    <Resource Include="images\settings_image.png" />
     <Resource Include="images\yellow1.png" />
   </ItemGroup>
   <ItemGroup>

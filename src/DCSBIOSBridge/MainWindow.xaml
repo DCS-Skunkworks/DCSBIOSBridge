@@ -7,8 +7,8 @@
         xmlns:customControls="clr-namespace:ClassLibraryCommon.CustomControls;assembly=ClassLibraryCommon"
         mc:Ignorable="d"    
         Title="DCS-BIOS Bridge" 
-        Height="550" 
-        Width="1050" 
+        Height="350" 
+        Width="600" 
         Loaded="MainWindow_OnLoaded" 
         Closing="MainWindow_OnClosing" 
         UseLayoutRounding="True" 
@@ -52,6 +52,7 @@
             </MenuItem>
             <MenuItem Header="Edit">
                 <MenuItem Name ="MenuItemOptions" Header="Options" Click="MenuItemOptions_OnClick"/>
+                <MenuItem Name ="MenuItemRemoveDisabledPorts" Header="Remove disabled ports" Click="MenuItemRemoveDisabledPorts_OnClick"/>
             </MenuItem>
             <MenuItem Header="Help" >
                 <MenuItem Header="About" Name="MenuItemAbout" Click="MenuItemAbout_OnClick"  />

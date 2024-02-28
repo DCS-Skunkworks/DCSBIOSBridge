@@ -1,5 +1,4 @@
-﻿using DCSBIOSBridge.Events;
-using DCSBIOSBridge.Events.Args;
+﻿using DCSBIOSBridge.Events.Args;
 
 namespace DCSBIOSBridge.Interfaces
 {
