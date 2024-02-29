@@ -14,7 +14,7 @@ If (-not(Test-Path $projectFilePath)) {
 	Write-Host "Fatal error. Project path not found: $projectPath" -foregroundcolor "Red"
 	exit
 }
-
+ 
 #Reading DCSBIOSBridge project file
 $xml = [xml](Get-Content $projectFilePath)
 [string]$assemblyVersion = $xml.Project.PropertyGroup.AssemblyVersion

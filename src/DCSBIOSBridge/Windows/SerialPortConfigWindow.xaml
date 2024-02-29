@@ -4,19 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="SerialPort Configuration" Height="350" Width="300" Icon="/images/app_image.jpg" UseLayoutRounding="True" RenderOptions.BitmapScalingMode="Fant" Loaded="SerialPortConfigWindow_OnLoaded">
+        Title="SerialPort Configuration" Height="350" Width="320" Icon="/images/app_image.jpg" UseLayoutRounding="True" RenderOptions.BitmapScalingMode="Fant" Loaded="SerialPortConfigWindow_OnLoaded">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -34,8 +34,8 @@
         <Label Content="Write timeout" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="7"/>
         <Label Content="Read timeout" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="8"/>
 
-        <Label Name="LabelSerialPortName" Content="SerialPort NAME HERE" FontWeight="ExtraBold"  Margin="0,0,0,0" VerticalAlignment="Top" Grid.Column="1" Grid.Row="0"/>
-        <ComboBox Name="ComboBoxBaud" SelectedIndex="3" Margin="0,0,0,0"  Grid.Column="1" Grid.Row="1" SelectedValuePath="Content">
+        <Label Name="LabelSerialPortName" Content="SerialPort NAME HERE" FontWeight="ExtraBold"  Margin="0,0,5,0" VerticalAlignment="Top" Grid.Column="1" Grid.Row="0"/>
+        <ComboBox Name="ComboBoxBaud" SelectedIndex="3" Height="22" Margin="0,0,5,0"  Grid.Column="1" Grid.Row="1" SelectedValuePath="Content">
             <ComboBoxItem >57600</ComboBoxItem>
             <ComboBoxItem >115200</ComboBoxItem>
             <ComboBoxItem >230400</ComboBoxItem>
@@ -44,20 +44,20 @@
             <ComboBoxItem >500000</ComboBoxItem>
             <ComboBoxItem >921600</ComboBoxItem>
         </ComboBox>
-        <ComboBox Name="ComboBoxParity" Grid.Column="1" Grid.Row="2" SelectedIndex="0" SelectedValuePath="Content">
+        <ComboBox Name="ComboBoxParity"  Height="22" Grid.Column="1" Grid.Row="2" SelectedIndex="0" SelectedValuePath="Content" Margin="0,0,5,0"  >
             <ComboBoxItem>None</ComboBoxItem>
             <ComboBoxItem>Odd</ComboBoxItem>
             <ComboBoxItem>Even</ComboBoxItem>
             <ComboBoxItem>Mark</ComboBoxItem>
             <ComboBoxItem>Space</ComboBoxItem>
         </ComboBox>
-        <ComboBox Name="ComboBoxStopBits"  SelectedIndex="0"  Grid.Column="1" Grid.Row="3" SelectedValuePath="Content">
+        <ComboBox Name="ComboBoxStopBits"   Height="22" SelectedIndex="0"  Grid.Column="1" Grid.Row="3" SelectedValuePath="Content" Margin="0,0,5,0"  >
             <ComboBoxItem >None</ComboBoxItem>
             <ComboBoxItem >One</ComboBoxItem>
             <ComboBoxItem >OnePointFive</ComboBoxItem>
             <ComboBoxItem >Two</ComboBoxItem>
         </ComboBox>
-        <ComboBox Name="ComboBoxDataBits"  SelectedIndex="3"  Grid.Column="1" Grid.Row="4" SelectedValuePath="Content">
+        <ComboBox Name="ComboBoxDataBits"   Height="22" SelectedIndex="3"  Grid.Column="1" Grid.Row="4" SelectedValuePath="Content" Margin="0,0,5,0"  >
             <ComboBoxItem >5</ComboBoxItem>
             <ComboBoxItem >6</ComboBoxItem>
             <ComboBoxItem >7</ComboBoxItem>
@@ -66,7 +66,7 @@
         <CheckBox Name="CheckBoxLineSignalRts" FlowDirection="RightToLeft" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Grid.Row="5" ></CheckBox>
         <CheckBox Name="CheckBoxLineSignalDtr" FlowDirection="RightToLeft" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Column="1" Grid.Row="6"></CheckBox>
 
-        <ComboBox Name="ComboBoxWriteTimeout"  SelectedIndex="0"   Grid.Column="1" Grid.Row="7" SelectedValuePath="Content">
+        <ComboBox Name="ComboBoxWriteTimeout"   Height="22" SelectedIndex="0"   Grid.Column="1" Grid.Row="7" SelectedValuePath="Content" Margin="0,0,5,0"  >
             <ComboBoxItem >0</ComboBoxItem>
             <ComboBoxItem >5000</ComboBoxItem>
             <ComboBoxItem >7500</ComboBoxItem>
@@ -74,7 +74,7 @@
             <ComboBoxItem >40000</ComboBoxItem>
             <ComboBoxItem >3600000</ComboBoxItem>
         </ComboBox>
-        <ComboBox Name="ComboBoxReadTimeout"  SelectedIndex="0"   Grid.Column="1" Grid.Row="8" SelectedValuePath="Content">
+        <ComboBox Name="ComboBoxReadTimeout"   Height="22" SelectedIndex="0"   Grid.Column="1" Grid.Row="8" SelectedValuePath="Content" Margin="0,0,5,0"  >
             <ComboBoxItem >0</ComboBoxItem>
             <ComboBoxItem >5000</ComboBoxItem>
             <ComboBoxItem >7500</ComboBoxItem>
