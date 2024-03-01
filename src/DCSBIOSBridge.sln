@@ -5,6 +5,10 @@ VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DCSBIOSBridge", "DCSBIOSBridge\DCSBIOSBridge.csproj", "{AD2B8354-47F0-4665-88FF-93FF6C29BA6C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibraryCommon", "DCSFPCommon\src\ClassLibraryCommon\ClassLibraryCommon.csproj", "{28A0425E-0951-42C1-8FDB-34A7534B485D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DCS-BIOS", "DCSFPCommon\src\DCS-BIOS\DCS-BIOS.csproj", "{54CB2D43-C0AC-42D4-8ABA-E290F37D9262}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{AD2B8354-47F0-4665-88FF-93FF6C29BA6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD2B8354-47F0-4665-88FF-93FF6C29BA6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD2B8354-47F0-4665-88FF-93FF6C29BA6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28A0425E-0951-42C1-8FDB-34A7534B485D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28A0425E-0951-42C1-8FDB-34A7534B485D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28A0425E-0951-42C1-8FDB-34A7534B485D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28A0425E-0951-42C1-8FDB-34A7534B485D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54CB2D43-C0AC-42D4-8ABA-E290F37D9262}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54CB2D43-C0AC-42D4-8ABA-E290F37D9262}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54CB2D43-C0AC-42D4-8ABA-E290F37D9262}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54CB2D43-C0AC-42D4-8ABA-E290F37D9262}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
