@@ -85,7 +85,6 @@ Write-Host "Finished tests execution for DCSBIOSBridge" -foregroundcolor "Green"
 Write-Host "Starting cleaning previous build" -foregroundcolor "Green"
 Set-Location -Path $scriptPath
 dotnet clean DCSBIOSBridge\DCSBIOSBridge.csproj -o $publishPath
-dotnet clean ControlReference\ControlReference.csproj -o $publishPath
 
 #Removing eventual previous non-splitted sample extensions
 Write-Host "Starting Removing eventual previous non-splitted sample extensions" -foregroundcolor "Green"
