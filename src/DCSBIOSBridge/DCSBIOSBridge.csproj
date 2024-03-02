@@ -53,12 +53,8 @@
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="ClassLibraryCommon">
-      <HintPath>dll\ClassLibraryCommon.dll</HintPath>
-    </Reference>
-    <Reference Include="DCS-BIOS">
-      <HintPath>dll\DCS-BIOS.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\DCSFPCommon\src\ClassLibraryCommon\ClassLibraryCommon.csproj" />
+    <ProjectReference Include="..\DCSFPCommon\src\DCS-BIOS\DCS-BIOS.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="AssemblyInfo.cs" />
