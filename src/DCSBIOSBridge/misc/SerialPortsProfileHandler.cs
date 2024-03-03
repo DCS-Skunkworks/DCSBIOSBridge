@@ -5,11 +5,12 @@ using DCSBIOSBridge.Events.Args;
 using DCSBIOSBridge.Interfaces;
 using DCSBIOSBridge.Properties;
 using DCSBIOSBridge.SerialPortClasses;
+using DCSBIOSBridge.UserControls;
 
 namespace DCSBIOSBridge.misc
 {
 
-    public class SerialPortsProfileHandler : ISerialPortStatusListener, IDisposable
+    public class SerialPortsProfileHandler : ISerialPortStatusListener, ISerialPortUserControlListener, IDisposable
     {
         private readonly object _lockObject = new();
         private List<string> SerialPortsToHide { get; set; } = [];
@@ -23,6 +24,7 @@ namespace DCSBIOSBridge.misc
         {
             IsNewProfile = true;
             DBEventManager.AttachSerialPortStatusListener(this);
+            DBEventManager.AttachSerialPortUserControlListener(this);
         }
 
         #region IDisposable Support
@@ -36,6 +38,7 @@ namespace DCSBIOSBridge.misc
             {
                 //  dispose managed state (managed objects).
                 DBEventManager.DetachSerialPortStatusListener(this);
+                DBEventManager.DetachSerialPortUserControlListener(this);
             }
 
             //  free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -76,7 +79,7 @@ namespace DCSBIOSBridge.misc
                         }
                     case SerialPortStatus.Hidden:
                         {
-                            HideSerialPort(e.SerialPortName);
+                            RemoveSerialPort(e.SerialPortName);
                             break;
                         }
                     case SerialPortStatus.None:
@@ -112,6 +115,29 @@ namespace DCSBIOSBridge.misc
             }
         }
 
+        public void OnSerialPortUserControlStatusChanged(SerialPortUserControlArgs args)
+        {
+            switch (args.Status)
+            {
+                case SerialPortUserControlStatus.Created:
+                    break;
+                case SerialPortUserControlStatus.Hidden:
+                case SerialPortUserControlStatus.Closed:
+                    {
+                        RemoveSerialPort(args.ComPort);
+                        break;
+                    }
+                case SerialPortUserControlStatus.Check:
+                    break;
+                case SerialPortUserControlStatus.DisposeDisabledPorts:
+                    break;
+                case SerialPortUserControlStatus.DoDispose:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         private void UpdateSettings(SerialPortSetting serialPortSetting)
         {
             SerialPortSettings.RemoveAll(o => o.ComPort == serialPortSetting.ComPort);
@@ -131,7 +157,7 @@ namespace DCSBIOSBridge.misc
             }
         }
 
-        private void HideSerialPort(string portName)
+        private void RemoveSerialPort(string portName)
         {
             lock (_lockObject)
             {
