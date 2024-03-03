@@ -5,6 +5,7 @@ namespace DCSBIOSBridge.Events.Args
 {
     public class SerialPortUserControlArgs : EventArgs
     {
+        public string ComPort { get; init; }
         public SerialPortUserControlStatus Status { get; init; }
         public SerialPortUserControl SerialPortUserControl { get; init; }
         public List<SerialPortSetting> SerialPortSettings { get; init; }

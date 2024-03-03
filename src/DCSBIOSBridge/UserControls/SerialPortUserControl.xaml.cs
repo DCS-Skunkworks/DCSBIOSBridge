@@ -311,7 +311,7 @@ namespace DCSBIOSBridge.UserControls
 
         private void BroadCastClosedAndDispose(SerialPortUserControlStatus status)
         {
-            DBEventManager.BroadCastSerialPortUserControlStatus(status, this);
+            DBEventManager.BroadCastSerialPortUserControlStatus(status, Name, this);
             Dispose(true);
         }
 
@@ -322,7 +322,7 @@ namespace DCSBIOSBridge.UserControls
                 foreach (var serialPortSetting in serialPortsStringSettingsList)
                 {
                     var serialPortUserControl = new SerialPortUserControl(serialPortSetting);
-                    DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Created, serialPortUserControl);
+                    DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Created, serialPortUserControl.Name, serialPortUserControl);
                 }
             }
             catch (Exception ex)

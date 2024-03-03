@@ -15,10 +15,14 @@ using DCSBIOSBridge.UserControls;
 using DCSBIOSBridge.Windows;
 using NLog;
 using System.Reflection;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Octokit;
 using System.Windows.Navigation;
 using DCSBIOSBridge.Events.Args;
+using Cursors = System.Windows.Input.Cursors;
+using MessageBox = System.Windows.MessageBox;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace DCSBIOSBridge
 {
@@ -259,7 +263,7 @@ namespace DCSBIOSBridge
                 {
                     // make all SerialPortUserControl check whether their SerialPort is OK
                     // if new profile then don't send list, affects whether to remove or grey them out when removed from computer
-                    DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Check, null, _profileHandler.IsNewProfile ? null : _profileHandler.SerialPortSettings);
+                    DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Check, null, null, _profileHandler.IsNewProfile ? null : _profileHandler.SerialPortSettings);
 
                     var currentPorts = SerialPort.GetPortNames();
 
@@ -305,10 +309,7 @@ namespace DCSBIOSBridge
 
         private void OpenProfile()
         {
-            if (_isDirty && MessageBox.Show("Discard unsaved changes to current profile?", "Discard changes?", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
-            {
-                return;
-            }
+            if (!DiscardChanges()) return;
 
             var openFileDialog = Common.OpenFileDialog(Settings.Default.LastProfileFileUsed);
 
@@ -530,10 +531,26 @@ namespace DCSBIOSBridge
             }
         }
 
+        private bool DiscardChanges()
+        {
+            if (_isDirty && MessageBox.Show("Discard unsaved changes to current profile?", "Discard changes?", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
             try
             {
+                if (!DiscardChanges())
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
                 Settings.Default.MainWindowTop = Top;
                 Settings.Default.MainWindowLeft = Left;
                 Settings.Default.MainWindowHeight = Height;
@@ -719,7 +736,10 @@ namespace DCSBIOSBridge
         {
             try
             {
-                DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DisposeDisabledPorts);
+                if (MessageBox.Show(this, "Remove disabled ports from the configuration?", "Remove ports", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DisposeDisabledPorts);
+                }
             }
             catch (Exception ex)
             {
