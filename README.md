@@ -6,7 +6,8 @@
 
  Handles communication between DCS-BIOS and serial ports
  
-![dcsbiosbridge_gui](https://github.com/DCS-Skunkworks/DCSBIOSBridge/assets/10453261/98d2ec7a-44be-4571-9266-dfd7a2e21482)
+![2024-03-04_145511](https://github.com/DCS-Skunkworks/DCSBIOSBridge/assets/10453261/fbfb9e33-3b74-4ccb-b076-1a98a827ea3d)
+
 
 
 ![broker_schema](https://github.com/DCS-Skunkworks/DCSBIOSBridge/assets/10453261/fecd6d6a-f50a-494c-b104-21a70edcba2c)
