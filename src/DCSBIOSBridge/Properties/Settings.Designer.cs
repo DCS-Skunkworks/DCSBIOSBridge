@@ -121,7 +121,7 @@ namespace DCSBIOSBridge.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("550")]
+        [global::System.Configuration.DefaultSettingValueAttribute("350")]
         public double MainWindowHeight {
             get {
                 return ((double)(this["MainWindowHeight"]));
@@ -133,7 +133,7 @@ namespace DCSBIOSBridge.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1050")]
+        [global::System.Configuration.DefaultSettingValueAttribute("600")]
         public double MainWindowWidth {
             get {
                 return ((double)(this["MainWindowWidth"]));

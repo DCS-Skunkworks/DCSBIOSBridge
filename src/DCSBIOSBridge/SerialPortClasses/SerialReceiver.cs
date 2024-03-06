@@ -22,7 +22,11 @@ internal class SerialReceiver : ISerialReceiver
     public SerialPort SerialPort { get; set; }
     private readonly StringBuilder _incomingData = new();
 
-
+    public void Release()
+    {
+        SerialPort.DataReceived -= ReceiveTextOverSerial;
+        SerialPort = null;
+    }
 
     public async void ReceiveTextOverSerial(object sender, SerialDataReceivedEventArgs e)
     {

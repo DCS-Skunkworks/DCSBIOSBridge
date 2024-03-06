@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.IO.Ports;
 using System.Threading.Channels;
 using DCS_BIOS.EventArgs;
@@ -37,10 +38,10 @@ namespace DCSBIOSBridge.SerialPortClasses
 
         //mode COM%COMPORT% BAUD=500000 PARITY=N DATA=8 STOP=1 TO=off DTR=on
 
-        private readonly SerialPort _serialPort;
-        private readonly ISerialReceiver _serialReceiver;
+        private SerialPort _serialPort;
+        private ISerialReceiver _serialReceiver;
         private readonly Channel<byte[]> _serialDataChannel = Channel.CreateUnbounded<byte[]>();
-        private readonly AutoResetEvent _serialDataWaitingForWriteResetEvent = new(false);
+        private AutoResetEvent _serialDataWaitingForWriteResetEvent = new(false);
         private bool _shutdown;
 
         public SerialPortSetting SerialPortSetting { get; set; }
@@ -74,12 +75,19 @@ namespace DCSBIOSBridge.SerialPortClasses
             if (disposing)
             {
                 _shutdown = true;
+                BIOSEventHandler.DetachAsyncBulkDataListener(this);
                 //  dispose managed state (managed objects).
-                _serialDataWaitingForWriteResetEvent.Set();
-                _serialPort.DataReceived -= _serialReceiver.ReceiveTextOverSerial;
+                _serialDataWaitingForWriteResetEvent?.Set();
+                _serialDataWaitingForWriteResetEvent?.Close();
+                _serialDataWaitingForWriteResetEvent?.Dispose();
+                _serialDataWaitingForWriteResetEvent = null;
+
+                _serialReceiver.Release();
+                _serialReceiver = null;
+
                 _serialPort?.Close();
                 _serialPort?.Dispose();
-                BIOSEventHandler.DetachAsyncBulkDataListener(this);
+                _serialPort = null;
             }
 
             //  free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -151,9 +159,11 @@ namespace DCSBIOSBridge.SerialPortClasses
 
         public void ApplyPortConfig()
         {
-            if (_serialPort != null && _serialPort.IsOpen) return;
-
             if (_serialPort == null) return;
+
+            var wasOpen = _serialPort.IsOpen;
+
+            _serialPort.Close();
 
             _serialPort.PortName = SerialPortSetting.ComPort;
             _serialPort.BaudRate = SerialPortSetting.BaudRate;
@@ -168,6 +178,8 @@ namespace DCSBIOSBridge.SerialPortClasses
             _serialPort.RtsEnable = SerialPortSetting.LineSignalRts;
             _serialPort.WriteTimeout = SerialPortSetting.WriteTimeout == 0 ? SerialPort.InfiniteTimeout : SerialPortSetting.WriteTimeout;
             _serialPort.ReadTimeout = SerialPortSetting.ReadTimeout == 0 ? SerialPort.InfiniteTimeout : SerialPortSetting.ReadTimeout;
+
+            if(wasOpen) _serialPort.Open();
         }
 
         private async Task QueueSerialData(byte[] data)

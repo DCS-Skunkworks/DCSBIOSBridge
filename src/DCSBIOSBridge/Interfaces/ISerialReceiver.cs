@@ -8,5 +8,6 @@ namespace DCSBIOSBridge.Interfaces;
 internal interface ISerialReceiver
 {
     SerialPort SerialPort { get; set; }
+    void Release();
     void ReceiveTextOverSerial(object sender, SerialDataReceivedEventArgs e);
 }

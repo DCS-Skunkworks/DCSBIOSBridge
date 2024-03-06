@@ -311,7 +311,7 @@ namespace DCSBIOSBridge.UserControls
 
         private void BroadCastClosedAndDispose(SerialPortUserControlStatus status)
         {
-            DBEventManager.BroadCastSerialPortUserControlStatus(status, Name, this);
+            Dispatcher.Invoke(() => DBEventManager.BroadCastSerialPortUserControlStatus(status, Name, this));
             Dispose(true);
         }
 
@@ -358,7 +358,7 @@ namespace DCSBIOSBridge.UserControls
                             break;
                         }
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException(nameof(e));
                 }
             }
             catch (Exception ex)
