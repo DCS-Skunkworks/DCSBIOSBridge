@@ -27,10 +27,10 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="MainWindowHeight" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">550</Value>
+      <Value Profile="(Default)">350</Value>
     </Setting>
     <Setting Name="MainWindowWidth" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">1050</Value>
+      <Value Profile="(Default)">600</Value>
     </Setting>
     <Setting Name="LastGitHubCheck" Type="System.DateTime" Scope="User">
       <Value Profile="(Default)">2018-01-01</Value>

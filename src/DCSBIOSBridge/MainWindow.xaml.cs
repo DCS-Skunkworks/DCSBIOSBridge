@@ -545,17 +545,18 @@ namespace DCSBIOSBridge
         {
             try
             {
+                Settings.Default.MainWindowTop = Top;
+                Settings.Default.MainWindowLeft = Left;
+                Settings.Default.MainWindowHeight = Height;
+                Settings.Default.MainWindowWidth = Width;
+                Settings.Default.Save();
+
                 if (!DiscardChanges())
                 {
                     e.Cancel = true;
                     return;
                 }
 
-                Settings.Default.MainWindowTop = Top;
-                Settings.Default.MainWindowLeft = Left;
-                Settings.Default.MainWindowHeight = Height;
-                Settings.Default.MainWindowWidth = Width;
-                Settings.Default.Save();
                 Dispose(true);
             }
             catch (Exception ex)
