@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.IO.Ports;
 using System.Threading.Channels;
 using DCS_BIOS.EventArgs;

@@ -110,11 +110,19 @@
 
                 <Image Source="Images/on_button.png" Margin="30,0,0,0" MouseDown="ButtonOpenPorts_OnClick" ToolTip="Open all ports" MouseEnter="UIElement_OnMouseEnterCursorArrow" MouseLeave="UIElement_OnMouseLeaveCursorArrow"/>
                 <Image Source="Images/off_button.png" Margin="10,0,0,0" MouseDown="ButtonClosePorts_OnClick"  ToolTip="Close all ports" MouseEnter="UIElement_OnMouseEnterCursorArrow" MouseLeave="UIElement_OnMouseLeaveCursorArrow"/>
+
+
             </ToolBar>
         </ToolBarTray>
 
         <ScrollViewer Grid.Row="3" Margin="5,5,5,5">
-            <WrapPanel Name="WrapPanelMain" Orientation="Horizontal"/>
+            <ItemsControl Name="ItemsControlPorts" >
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
         </ScrollViewer>
 
         <StatusBar HorizontalAlignment="Stretch" Height="26" Grid.Row="4" VerticalAlignment="Top" >
