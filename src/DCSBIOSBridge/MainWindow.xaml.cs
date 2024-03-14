@@ -15,7 +15,6 @@ using DCSBIOSBridge.UserControls;
 using DCSBIOSBridge.Windows;
 using NLog;
 using System.Reflection;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Octokit;
 using System.Windows.Navigation;
@@ -41,9 +40,8 @@ namespace DCSBIOSBridge
         private bool _isDirty;
         private readonly SerialPortsProfileHandler _profileHandler = new();
         private readonly SerialPortService _serialPortService = new();
-        private readonly List<SerialPortUserControl> _serialPortUserControls = new();
-
-
+        private List<SerialPortUserControl> _serialPortUserControls = new();
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -278,7 +276,7 @@ namespace DCSBIOSBridge
                     {
                         if (_lastSerialPortsWhenChecking.Any(o => o == currentPort) == false)
                         {
-                            WrapPanelMain.Dispatcher.Invoke(() => AddSerialPort(currentPort));
+                            Dispatcher.Invoke(() => AddSerialPort(currentPort));
                         }
                     }
 
@@ -453,8 +451,7 @@ namespace DCSBIOSBridge
                 if (_serialPortUserControls.Count(o => o.Name == serialPortName) > 0) return;
 
                 var serialPortUserControl = new SerialPortUserControl(new SerialPortSetting { ComPort = serialPortName });
-                _serialPortUserControls.Add(serialPortUserControl);
-                WrapPanelMain.Children.Add(serialPortUserControl);
+                AddUserControlToUI(serialPortUserControl);
                 DBEventManager.BroadCastPortStatus(serialPortName, SerialPortStatus.Added, 0, null, serialPortUserControl.SerialPortSetting);
             }
             catch (Exception ex)
@@ -565,25 +562,30 @@ namespace DCSBIOSBridge
             }
         }
 
+
         private void AddUserControlToUI(SerialPortUserControl userControl)
         {
             _serialPortUserControls.Add(userControl);
-            WrapPanelMain.Children.Add(userControl);
+            _serialPortUserControls = _serialPortUserControls.OrderBy(o => o.Name).ToList();
+            ItemsControlPorts.ItemsSource = null;
+            ItemsControlPorts.ItemsSource = _serialPortUserControls;
         }
 
         private void RemoveUserControlFromUI(SerialPortUserControl userControl)
         {
             _serialPortUserControls.Remove(userControl);
-            WrapPanelMain.Children.Remove(userControl);
+            ItemsControlPorts.ItemsSource = null;
+            ItemsControlPorts.ItemsSource = _serialPortUserControls;
         }
 
         private void DisposeAllUserControls()
         {
             try
             {
-                WrapPanelMain.Children.Clear();
                 DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DoDispose);
                 _serialPortUserControls.Clear();
+                ItemsControlPorts.ItemsSource = null;
+                ItemsControlPorts.ItemsSource = _serialPortUserControls;
                 SetWindowState();
             }
             catch (Exception ex)
@@ -747,5 +749,6 @@ namespace DCSBIOSBridge
                 Common.ShowErrorMessageBox(ex);
             }
         }
+
     }
 }
