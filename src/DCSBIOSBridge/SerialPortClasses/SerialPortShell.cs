@@ -7,6 +7,7 @@ using DCSBIOSBridge.Events;
 using DCSBIOSBridge.Events.Args;
 using DCSBIOSBridge.Interfaces;
 using DCSBIOSBridge.misc;
+using Microsoft.Win32;
 using NLog;
 
 namespace DCSBIOSBridge.SerialPortClasses
@@ -38,7 +39,7 @@ namespace DCSBIOSBridge.SerialPortClasses
         //mode COM%COMPORT% BAUD=500000 PARITY=N DATA=8 STOP=1 TO=off DTR=on
 
         private SerialPort _serialPort;
-        private ISerialReceiver _serialReceiver;
+        private SerialReceiver _serialReceiver;
         private readonly Channel<byte[]> _serialDataChannel = Channel.CreateUnbounded<byte[]>();
         private AutoResetEvent _serialDataWaitingForWriteResetEvent = new(false);
         private bool _shutdown;
@@ -48,6 +49,7 @@ namespace DCSBIOSBridge.SerialPortClasses
         public SerialPortShell(SerialPortSetting serialPortSetting)
         {
             SerialPortSetting = serialPortSetting;
+            GetFriendlyName();
             _serialPort = new SerialPort();
             _serialReceiver = new SerialReceiver
             {
@@ -113,6 +115,7 @@ namespace DCSBIOSBridge.SerialPortClasses
             ApplyPortConfig();
             try
             {
+                GetFriendlyName();
                 _serialPort.Open();
             }
             catch (IOException e)
@@ -178,7 +181,8 @@ namespace DCSBIOSBridge.SerialPortClasses
             _serialPort.WriteTimeout = SerialPortSetting.WriteTimeout == 0 ? SerialPort.InfiniteTimeout : SerialPortSetting.WriteTimeout;
             _serialPort.ReadTimeout = SerialPortSetting.ReadTimeout == 0 ? SerialPort.InfiniteTimeout : SerialPortSetting.ReadTimeout;
 
-            if(wasOpen) _serialPort.Open();
+            if (wasOpen) _serialPort.Open();
+            GetFriendlyName();
         }
 
         private async Task QueueSerialData(byte[] data)
@@ -213,6 +217,47 @@ namespace DCSBIOSBridge.SerialPortClasses
             }
         }
 
+        private static IEnumerable<RegistryKey> GetSubKeys(RegistryKey key)
+        {
+            foreach (var keyName in key.GetSubKeyNames())
+                using (var subKey = key.OpenSubKey(keyName))
+                    yield return subKey;
+        }
+
+        private static string GetName(RegistryKey key)
+        {
+            var name = key.Name;
+            int idx;
+            return (idx = name.LastIndexOf('\\')) == -1 ? name : name[(idx + 1)..];
+        }
+
+        private bool GetFriendlyName()
+        {
+            using var usbDevicesKey = Registry.LocalMachine.OpenSubKey(Constants.USBDevices);
+
+            foreach (var usbDeviceKey in GetSubKeys(usbDevicesKey))
+            {
+                foreach (var devFnKey in GetSubKeys(usbDeviceKey))
+                {
+                    var friendlyName = (string)devFnKey.GetValue("FriendlyName") ?? (string)devFnKey.GetValue("DeviceDesc");
+
+                    using var deviceParametersKey = devFnKey.OpenSubKey("Device Parameters");
+                    var portName = (string)deviceParametersKey?.GetValue("PortName");
+
+                    if (string.IsNullOrEmpty(portName) || SerialPortSetting.ComPort != portName) continue;
+
+                    FriendlyName = friendlyName?.Replace($"({SerialPortSetting.ComPort})", "", StringComparison.Ordinal);
+                    VIDPID = GetName(usbDeviceKey);
+                    FriendlyName = string.IsNullOrEmpty(FriendlyName) ? VIDPID : FriendlyName;
+
+                    return true;
+                    //yield return new UsbSerialPort(portName, GetName(devBaseKey) + @"\" + GetName(devFnKey), friendlyName);
+                }
+            }
+
+            return false;
+        }
+
         public Handshake Handshake
         {
             get => SerialPortSetting.Handshake;
@@ -232,6 +277,10 @@ namespace DCSBIOSBridge.SerialPortClasses
                 DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Settings, 0, null, SerialPortSetting);
             }
         }
+
+        public string FriendlyName { get; set; }
+
+        public string VIDPID { get; set; }
 
         public int BaudRate
         {

@@ -22,6 +22,13 @@
         public const string ProfileOpenKeyword = "Open";
         public const string ProfileClosedKeyword = "Closed";
 
+        /*
+         * 15.03.2024 JDA
+         * Found that one USB serial port converter wasn't found under USB but directly under Enum.
+         * That one will not be found using this location.
+         */
+        public const string USBDevices = @"SYSTEM\CurrentControlSet\Enum\USB";
+
         public const int KiloByte = 1024;
         public const int MegaByte = 1048576;
     }

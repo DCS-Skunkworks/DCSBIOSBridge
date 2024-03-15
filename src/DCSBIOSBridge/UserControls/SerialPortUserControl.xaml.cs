@@ -41,6 +41,7 @@ namespace DCSBIOSBridge.UserControls
             DataContext = this;
             LabelPort.Content = serialPortSetting.ComPort;
             _serialPortShell = new SerialPortShell(serialPortSetting);
+            LabelFriendlyName.Content = _serialPortShell.FriendlyName;
             DBEventManager.AttachSerialPortStatusListener(this);
             DBEventManager.AttachSerialPortUserControlListener(this);
             DBEventManager.AttachDataReceivedListener(this);
@@ -216,6 +217,7 @@ namespace DCSBIOSBridge.UserControls
 
                     found = true;
                     Dispatcher.Invoke(() => IsEnabled = true);
+                    Dispatcher.Invoke(() => LabelFriendlyName.Content = _serialPortShell.FriendlyName);
                     break;
                 }
                 if (!found)
@@ -270,6 +272,7 @@ namespace DCSBIOSBridge.UserControls
             try
             {
                 if (!IsEnabled || _serialPortShell.IsOpen) return;
+                Dispatcher.Invoke(() => LabelFriendlyName.Content = _serialPortShell.FriendlyName);
                 _serialPortShell.Open();
             }
             catch (Exception ex)
