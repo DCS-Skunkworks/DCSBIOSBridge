@@ -60,7 +60,7 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">
-                <Label Name="LabelPort" FontSize="17" FontWeight="Bold"/>
+                <Label Name="LabelPort" Content="COM4" FontSize="17" FontWeight="Bold"/>
             </StackPanel>
 
             <StackPanel Grid.Column="0" Grid.Row="2" Grid.RowSpan="2" Grid.ColumnSpan="3">
@@ -80,6 +80,10 @@
             <WrapPanel Grid.Column="0" Grid.Row="5" Grid.RowSpan="2" Grid.ColumnSpan="2" VerticalAlignment="Bottom" HorizontalAlignment="Left">
                 <ToggleButton Name="ButtonConnection" Width="40" Height="40" Click="ButtonConnection_OnClick" Style="{StaticResource OnOffToggleImageStyle}" IsChecked="False" Cursor="Hand"  />
             </WrapPanel>
+
+            <StackPanel Grid.Column="2" Grid.Row="6" Grid.ColumnSpan="4" VerticalAlignment="Bottom">
+                <Label Name="LabelFriendlyName" FontSize="9" FontWeight="Bold"/>
+            </StackPanel>
 
             <DockPanel Grid.Column="3" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Right">
                 <Button  Margin="0,0,5,0" DockPanel.Dock="Left">
