@@ -54,6 +54,12 @@
                 <MenuItem Name ="MenuItemOptions" Header="Options" Click="MenuItemOptions_OnClick"/>
                 <MenuItem Name ="MenuItemRemoveDisabledPorts" Header="Remove disabled ports" Click="MenuItemRemoveDisabledPorts_OnClick"/>
             </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Name ="MenuItemShow" Header="Show serial port">
+                    <MenuItem Name="MenuItemName" Header="Name" Tag="0" Click="MenuItemShowInfo_OnClick"></MenuItem>
+                    <MenuItem Name="MenuItemVIDPID" Header="VID__PID" Tag="1" Click="MenuItemShowInfo_OnClick"></MenuItem>
+                </MenuItem>
+            </MenuItem>
             <MenuItem Header="Help" >
                 <MenuItem Header="About" Name="MenuItemAbout" Click="MenuItemAbout_OnClick"  />
             </MenuItem>

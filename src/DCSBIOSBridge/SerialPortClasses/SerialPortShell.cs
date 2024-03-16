@@ -32,6 +32,12 @@ namespace DCSBIOSBridge.SerialPortClasses
         Settings
     }
 
+    public enum HardwareInfoToShow
+    {
+        Name,
+        VIDPID
+    }
+
     public class SerialPortShell : IAsyncDcsBiosBulkDataListener, IDisposable
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
@@ -231,7 +237,15 @@ namespace DCSBIOSBridge.SerialPortClasses
             return (idx = name.LastIndexOf('\\')) == -1 ? name : name[(idx + 1)..];
         }
 
-        private bool GetFriendlyName()
+        private void GetFriendlyName()
+        {
+            if (!GetFriendlyName1())
+            {
+                GetFriendlyName2();
+            }
+        }
+
+        private bool GetFriendlyName1()
         {
             using var usbDevicesKey = Registry.LocalMachine.OpenSubKey(Constants.USBDevices);
 
@@ -252,6 +266,35 @@ namespace DCSBIOSBridge.SerialPortClasses
 
                     return true;
                     //yield return new UsbSerialPort(portName, GetName(devBaseKey) + @"\" + GetName(devFnKey), friendlyName);
+                }
+            }
+
+            return false;
+        }
+
+        private bool GetFriendlyName2()
+        {
+            using var devicesKeys = Registry.LocalMachine.OpenSubKey(Constants.DeviceEnumeration);
+
+            foreach (var deviceKey in GetSubKeys(devicesKeys))
+            {
+                foreach (var deviceSub1Key in GetSubKeys(deviceKey))
+                {
+                    foreach (var deviceSub2Key in GetSubKeys(deviceSub1Key))
+                    {
+                        var friendlyName = (string)deviceSub2Key.GetValue("FriendlyName") ?? (string)deviceSub2Key.GetValue("DeviceDesc");
+
+                        using var deviceParametersKey = deviceSub2Key.OpenSubKey("Device Parameters");
+                        var portName = (string)deviceParametersKey?.GetValue("PortName");
+
+                        if (string.IsNullOrEmpty(portName) || SerialPortSetting.ComPort != portName) continue;
+
+                        FriendlyName = friendlyName?.Replace($"({SerialPortSetting.ComPort})", "", StringComparison.Ordinal);
+                        VIDPID = GetName(deviceKey);
+                        FriendlyName = string.IsNullOrEmpty(FriendlyName) ? VIDPID : FriendlyName;
+
+                        return true;
+                    }
                 }
             }
 

@@ -7,6 +7,7 @@ using DCSBIOSBridge.Events;
 using DCSBIOSBridge.Events.Args;
 using DCSBIOSBridge.Interfaces;
 using DCSBIOSBridge.misc;
+using DCSBIOSBridge.Properties;
 using DCSBIOSBridge.SerialPortClasses;
 using DCSBIOSBridge.Windows;
 
@@ -19,7 +20,8 @@ namespace DCSBIOSBridge.UserControls
         Closed,
         Check,
         DisposeDisabledPorts,
-        DoDispose
+        DoDispose,
+        ShowInfo
     }
 
     /// <summary>
@@ -34,14 +36,14 @@ namespace DCSBIOSBridge.UserControls
         private const int MaxQueueSize = 10;
         private bool _formLoaded;
 
-        public SerialPortUserControl(SerialPortSetting serialPortSetting)
+        public SerialPortUserControl(SerialPortSetting serialPortSetting, HardwareInfoToShow hardwareInfoToShow)
         {
             InitializeComponent();
             Name = serialPortSetting.ComPort;
             DataContext = this;
             LabelPort.Content = serialPortSetting.ComPort;
             _serialPortShell = new SerialPortShell(serialPortSetting);
-            LabelFriendlyName.Content = _serialPortShell.FriendlyName;
+            ShowInfo(hardwareInfoToShow);
             DBEventManager.AttachSerialPortStatusListener(this);
             DBEventManager.AttachSerialPortUserControlListener(this);
             DBEventManager.AttachDataReceivedListener(this);
@@ -99,8 +101,14 @@ namespace DCSBIOSBridge.UserControls
 
         private void SetWindowState()
         {
-            //IsChecked = Port öppen
-            ButtonConnection.IsChecked = _serialPortShell != null && _serialPortShell.IsOpen;
+            try
+            {
+                ButtonConnection.IsChecked = _serialPortShell != null && _serialPortShell.IsOpen;
+            }
+            catch (Exception ex)
+            {
+                Common.ShowErrorMessageBox(ex);
+            }
         }
 
         public void OnSerialPortStatusChanged(SerialPortStatusEventArgs e)
@@ -191,6 +199,11 @@ namespace DCSBIOSBridge.UserControls
                             BroadCastClosedAndDispose(SerialPortUserControlStatus.Closed);
                             break;
                         }
+                    case SerialPortUserControlStatus.ShowInfo:
+                        {
+                            Dispatcher.Invoke(() => ShowInfo(args.HardwareInfoToShow));
+                            break;
+                        }
                     default:
                         throw new ArgumentOutOfRangeException(args.Status.ToString());
                 }
@@ -217,9 +230,10 @@ namespace DCSBIOSBridge.UserControls
 
                     found = true;
                     Dispatcher.Invoke(() => IsEnabled = true);
-                    Dispatcher.Invoke(() => LabelFriendlyName.Content = _serialPortShell.FriendlyName);
+                    Dispatcher.Invoke(() => ShowInfo);
                     break;
                 }
+
                 if (!found)
                 {
                     // If this port is in the profile then it should be greyed out, not disposed
@@ -243,6 +257,23 @@ namespace DCSBIOSBridge.UserControls
             catch (Exception ex)
             {
                 Dispatcher.Invoke(() => Common.ShowErrorMessageBox(ex));
+            }
+        }
+
+        private void ShowInfo(HardwareInfoToShow hardwareInfoToShow)
+        {
+            switch (hardwareInfoToShow)
+            {
+                case HardwareInfoToShow.Name:
+                    {
+                        Dispatcher.Invoke(() => TextBoxFriendlyName.Text = _serialPortShell.FriendlyName);
+                        break;
+                    }
+                case HardwareInfoToShow.VIDPID:
+                    {
+                        Dispatcher.Invoke(() => TextBoxFriendlyName.Text = _serialPortShell.VIDPID);
+                        break;
+                    }
             }
         }
 
@@ -272,7 +303,7 @@ namespace DCSBIOSBridge.UserControls
             try
             {
                 if (!IsEnabled || _serialPortShell.IsOpen) return;
-                Dispatcher.Invoke(() => LabelFriendlyName.Content = _serialPortShell.FriendlyName);
+                Dispatcher.Invoke(() => ShowInfo);
                 _serialPortShell.Open();
             }
             catch (Exception ex)
@@ -323,7 +354,7 @@ namespace DCSBIOSBridge.UserControls
             {
                 foreach (var serialPortSetting in serialPortsStringSettingsList)
                 {
-                    var serialPortUserControl = new SerialPortUserControl(serialPortSetting);
+                    var serialPortUserControl = new SerialPortUserControl(serialPortSetting, (HardwareInfoToShow) Settings.Default.ShowInfoType);
                     DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Created, serialPortUserControl.Name, serialPortUserControl);
                 }
             }
