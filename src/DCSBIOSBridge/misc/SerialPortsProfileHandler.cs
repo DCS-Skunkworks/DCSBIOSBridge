@@ -133,6 +133,8 @@ namespace DCSBIOSBridge.misc
                     break;
                 case SerialPortUserControlStatus.DoDispose:
                     break;
+                case SerialPortUserControlStatus.ShowInfo:
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

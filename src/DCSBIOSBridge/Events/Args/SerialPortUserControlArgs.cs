@@ -9,5 +9,6 @@ namespace DCSBIOSBridge.Events.Args
         public SerialPortUserControlStatus Status { get; init; }
         public SerialPortUserControl SerialPortUserControl { get; init; }
         public List<SerialPortSetting> SerialPortSettings { get; init; }
+        public HardwareInfoToShow HardwareInfoToShow { get; init; }
     }
 }

@@ -15,6 +15,7 @@ using DCSBIOSBridge.UserControls;
 using DCSBIOSBridge.Windows;
 using NLog;
 using System.Reflection;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Octokit;
 using System.Windows.Navigation;
@@ -110,6 +111,8 @@ namespace DCSBIOSBridge
                 CheckForNewRelease();
 
                 LoadPorts();
+
+                SetShowInfoMenuItems();
 
                 SetWindowState();
                 _formLoaded = true;
@@ -208,6 +211,8 @@ namespace DCSBIOSBridge
                     case SerialPortUserControlStatus.Check:
                     case SerialPortUserControlStatus.DisposeDisabledPorts:
                     case SerialPortUserControlStatus.DoDispose:
+                        break;
+                    case SerialPortUserControlStatus.ShowInfo:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(args.Status.ToString());
@@ -450,7 +455,7 @@ namespace DCSBIOSBridge
             {
                 if (_serialPortUserControls.Count(o => o.Name == serialPortName) > 0) return;
 
-                var serialPortUserControl = new SerialPortUserControl(new SerialPortSetting { ComPort = serialPortName });
+                var serialPortUserControl = new SerialPortUserControl(new SerialPortSetting { ComPort = serialPortName}, (HardwareInfoToShow)Settings.Default.ShowInfoType);
                 AddUserControlToUI(serialPortUserControl);
                 DBEventManager.BroadCastPortStatus(serialPortName, SerialPortStatus.Added, 0, null, serialPortUserControl.SerialPortSetting);
             }
@@ -750,5 +755,32 @@ namespace DCSBIOSBridge
             }
         }
 
+        private void SetShowInfoMenuItems()
+        {
+            foreach (var item in MenuItemShow.Items)
+            {
+                if(item is not MenuItem menuItem || menuItem.Tag == null) continue;
+                menuItem.IsChecked = int.Parse(menuItem.Tag.ToString() ?? "0" ) == Settings.Default.ShowInfoType;
+            }
+
+            DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.ShowInfo, null, null, null, (HardwareInfoToShow)Settings.Default.ShowInfoType);
+        }
+
+        private void MenuItemShowInfo_OnClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var menuItem = (MenuItem)sender;
+                
+                Settings.Default.ShowInfoType = int.Parse(menuItem.Tag.ToString() ?? "0");
+                Settings.Default.Save();
+
+                SetShowInfoMenuItems();
+            }
+            catch (Exception ex)
+            {
+                Common.ShowErrorMessageBox(ex);
+            }
+        }
     }
 }

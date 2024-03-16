@@ -28,6 +28,8 @@
          * That one will not be found using this location.
          */
         public const string USBDevices = @"SYSTEM\CurrentControlSet\Enum\USB";
+        public const string DeviceEnumeration = @"SYSTEM\CurrentControlSet\Enum";
+
 
         public const int KiloByte = 1024;
         public const int MegaByte = 1048576;
