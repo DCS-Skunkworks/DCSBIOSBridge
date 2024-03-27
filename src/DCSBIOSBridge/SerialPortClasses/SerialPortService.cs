@@ -1,6 +1,8 @@
-﻿using System.IO.Ports;
+﻿using System.Diagnostics;
+using System.IO.Ports;
 using System.Management;
 using DCSBIOSBridge.Events;
+using DCSBIOSBridge.misc;
 using NLog;
 
 namespace DCSBIOSBridge.SerialPortClasses
@@ -17,7 +19,7 @@ namespace DCSBIOSBridge.SerialPortClasses
 
         public SerialPortService()
         {
-            _serialPorts = SerialPort.GetPortNames();
+            _serialPorts = Common.GetSerialPortNames();
             MonitorDeviceChanges();
         }
         /// <summary>
@@ -61,18 +63,53 @@ namespace DCSBIOSBridge.SerialPortClasses
                 Logger.Error(me);
             }
         }
-        
+
         private void RaisePortsChangedIfNecessary(WindowsSerialPortEventType eventType)
         {
             lock (_serialPorts)
             {
-                var availableSerialPorts = SerialPort.GetPortNames();
+                Debug.WriteLine($"_serialPorts = {string.Join(", ", _serialPorts)}");
+                var availableSerialPorts = Common.GetSerialPortNames();
+                Debug.WriteLine($"Available ports = {string.Join(", ", availableSerialPorts)}");
+                switch (eventType)
+                {
+                    case WindowsSerialPortEventType.Insertion:
+                        {
+                            var addedPorts = availableSerialPorts.Except(_serialPorts).ToArray();
+                            Debug.WriteLine($"Added ports = {string.Join(", ", addedPorts)}");
+                            if (addedPorts.Length == 0) break;
+
+                            DBEventManager.BroadCastWindowsPortEvent(null, addedPorts, eventType);
+                            break;
+                        }
+                    case WindowsSerialPortEventType.Removal:
+                        {
+                            var removedPorts = _serialPorts.Except(availableSerialPorts).ToArray();
+                            Debug.WriteLine($"Removed ports = {string.Join(", ", removedPorts)}");
+                            if (removedPorts.Length == 0) break;
+
+                            DBEventManager.BroadCastWindowsPortEvent(null, removedPorts, eventType);
+                            break;
+                        }
+                }
+
+                _serialPorts = availableSerialPorts;
+            }
+        }
+
+        /*
+        private void RaisePortsChangedIfNecessary(WindowsSerialPortEventType eventType)
+        {
+            lock (_serialPorts)
+            {
+                var availableSerialPorts = Common.GetSerialPortNames();
                 if (_serialPorts.SequenceEqual(availableSerialPorts)) return;
 
                 _serialPorts = availableSerialPorts;
                 DBEventManager.BroadCastWindowsPortEvent(null, _serialPorts, eventType);
             }
         }
+        */
     }
 
 

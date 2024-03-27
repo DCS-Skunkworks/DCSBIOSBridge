@@ -27,12 +27,13 @@ namespace DCSBIOSBridge.UserControls
     /// <summary>
     /// Interaction logic for SerialPortUserControl.xaml
     /// </summary>
-    public partial class SerialPortUserControl : ISerialPortStatusListener, ISerialPortUserControlListener, IDataReceivedListener, INotifyPropertyChanged, IDisposable
+    public partial class SerialPortUserControl : ISerialPortStatusListener, ISerialPortUserControlListener, ISerialDataListener, INotifyPropertyChanged, IDisposable
     {
         private readonly SerialPortShell _serialPortShell;
         private double _bytesFromDCSBIOS;
         private double _bytesFromSerialPort;
         private readonly Queue<string> _lastDCSBIOSCommands = new(10);
+        private readonly object _dcsbiosCommandsLock = new();
         private const int MaxQueueSize = 10;
         private bool _formLoaded;
 
@@ -141,14 +142,15 @@ namespace DCSBIOSBridge.UserControls
                         break;
                     case SerialPortStatus.Ok:
                         break;
-                    case SerialPortStatus.Error:
-                        break;
                     case SerialPortStatus.Critical:
                         break;
+                    case SerialPortStatus.Error:
                     case SerialPortStatus.IOError:
-                        break;
                     case SerialPortStatus.TimeOutError:
-                        break;
+                        {
+                            BroadCastClosedAndDispose(SerialPortUserControlStatus.Closed);
+                            break;
+                        }
                     case SerialPortStatus.BytesWritten:
                         break;
                     case SerialPortStatus.BytesRead:
@@ -221,7 +223,7 @@ namespace DCSBIOSBridge.UserControls
                 var portName = "";
                 Dispatcher.Invoke(() => portName = Name);
                 //Check that COM port which _serialPort has does exist, what more?
-                var ports = SerialPort.GetPortNames();
+                var ports = Common.GetSerialPortNames();
                 var found = false;
 
                 foreach (var port in ports)
@@ -236,13 +238,13 @@ namespace DCSBIOSBridge.UserControls
 
                 if (!found)
                 {
-                    // If this port is in the profile then it should be greyed out, not disposed
                     if (serialPortSettings == null)
                     {
                         BroadCastClosedAndDispose(SerialPortUserControlStatus.Closed);
                         return;
                     }
 
+                    // If this port is in the profile then it should be greyed out, not disposed
                     if (serialPortSettings.Any(o => o.ComPort == _serialPortShell.ComPort) == true)
                     {
                         Dispatcher.Invoke(() => IsEnabled = false);
@@ -354,7 +356,7 @@ namespace DCSBIOSBridge.UserControls
             {
                 foreach (var serialPortSetting in serialPortsStringSettingsList)
                 {
-                    var serialPortUserControl = new SerialPortUserControl(serialPortSetting, (HardwareInfoToShow) Settings.Default.ShowInfoType);
+                    var serialPortUserControl = new SerialPortUserControl(serialPortSetting, (HardwareInfoToShow)Settings.Default.ShowInfoType);
                     DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Created, serialPortUserControl.Name, serialPortUserControl);
                 }
             }
@@ -370,7 +372,7 @@ namespace DCSBIOSBridge.UserControls
             set => _serialPortShell.SerialPortSetting = value;
         }
 
-        public void OnDataReceived(DataReceivedEventArgs e)
+        public void OnDataReceived(SerialDataEventArgs e)
         {
             try
             {
@@ -410,7 +412,7 @@ namespace DCSBIOSBridge.UserControls
             };
         }
 
-        private string _serialPortDataWritten;
+        private string _serialPortDataWritten = " ";
         public string SerialPortDataWritten
         {
             get => _serialPortDataWritten;
@@ -422,7 +424,7 @@ namespace DCSBIOSBridge.UserControls
             }
         }
 
-        private string _serialPortDataReceived;
+        private string _serialPortDataReceived = " ";
         public string SerialPortDataReceived
 
         {
@@ -453,16 +455,26 @@ namespace DCSBIOSBridge.UserControls
         public string LastDCSBIOSCommands
 
         {
-            get => string.Join("\n", _lastDCSBIOSCommands.ToList());
+            get
+            {
+                lock (_dcsbiosCommandsLock)
+                {
+                    return string.Join("\n", _lastDCSBIOSCommands.ToList());
+                }
+            } 
             set
             {
-                _lastDCSBIOSCommands.Enqueue(value);
-                while (_lastDCSBIOSCommands.Count > MaxQueueSize)
+                lock (_dcsbiosCommandsLock)
                 {
-                    _lastDCSBIOSCommands.Dequeue();
+                    _lastDCSBIOSCommands.Enqueue(value);
+                    while (_lastDCSBIOSCommands.Count > MaxQueueSize)
+                    {
+                        _lastDCSBIOSCommands.Dequeue();
+                    }
+
+                    // Call OnPropertyChanged whenever the property is updated
+                    OnPropertyChanged();
                 }
-                // Call OnPropertyChanged whenever the property is updated
-                OnPropertyChanged();
             }
         }
 

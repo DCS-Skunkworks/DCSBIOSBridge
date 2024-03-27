@@ -53,7 +53,7 @@ internal class SerialReceiver : ISerialReceiver
 
                             DCSBIOS.Send(command);
                             DBEventManager.BroadCastPortStatus(SerialPort.PortName, SerialPortStatus.DCSBIOSCommandCalled, 0, command);
-                            DBEventManager.BroadCastDataReceived(SerialPort.PortName, command.Length, StreamInterface.SerialPortRead);
+                            DBEventManager.BroadCastSerialData(SerialPort.PortName, command.Length, StreamInterface.SerialPortRead);
                         }
                         // When all commands have been processed they can be removed from the buffer
                         foreach (var command in array)
@@ -66,22 +66,23 @@ internal class SerialReceiver : ISerialReceiver
                     catch (TimeoutException t)
                     {
                         var message =
-                            $"{SerialPort.PortName} Timeout when reading from SerialPort. Message = {t.DecodeException()} \n\n->{_incomingData}<-";
-                        Logger.Error(message);
+                            $"{SerialPort.PortName} TimeoutException when reading from SerialPort. Message = {t.DecodeException()} \n\n->{_incomingData}<-";
+                        Logger.Error(t, message);
                         DBEventManager.BroadCastPortStatus(SerialPort.PortName, SerialPortStatus.TimeOutError);
                     }
                     catch (IOException t)
                     {
                         var message =
                             $"{SerialPort.PortName} IOException when reading from SerialPort. Message = {t.Message} \n\n->{_incomingData}<-";
-                        Logger.Error(message);
+                        Logger.Error(t, message);
                         DBEventManager.BroadCastPortStatus(SerialPort.PortName, SerialPortStatus.IOError);
+
                     }
                     catch (Exception t)
                     {
                         var message =
                             $"{SerialPort.PortName} Exception when reading from SerialPort. Message = {t.Message} \n\n->{_incomingData}<-";
-                        Logger.Error(message);
+                        Logger.Error(t, message);
                         DBEventManager.BroadCastPortStatus(SerialPort.PortName, SerialPortStatus.Error);
                     }
 
@@ -101,5 +102,10 @@ internal class SerialReceiver : ISerialReceiver
         }
 
         ReadFromSerialPortSemaphore.Release();
+    }
+    
+    public void SerialPortError(object sender, SerialErrorReceivedEventArgs e)
+    {
+        Logger.Error($"Serial port error: {SerialPort.PortName}. Error type: {e.EventType}");
     }
 }

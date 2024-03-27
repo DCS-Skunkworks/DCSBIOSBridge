@@ -110,22 +110,22 @@ namespace DCSBIOSBridge.Events
         /*
          * For broadcasting data from DCS-BIOS and Serial Port
          */
-        public delegate void DataReceivedEventHandler(DataReceivedEventArgs args);
+        public delegate void DataReceivedEventHandler(SerialDataEventArgs args);
         public static event DataReceivedEventHandler OnDataReceived;
 
-        public static void AttachDataReceivedListener(IDataReceivedListener dataReceivedListener)
+        public static void AttachDataReceivedListener(ISerialDataListener dataReceivedListener)
         {
             OnDataReceived += dataReceivedListener.OnDataReceived;
         }
 
-        public static void DetachDataReceivedListener(IDataReceivedListener dataReceivedListener)
+        public static void DetachDataReceivedListener(ISerialDataListener dataReceivedListener)
         {
             OnDataReceived -= dataReceivedListener.OnDataReceived;
         }
 
-        public static void BroadCastDataReceived(string comPort, int bytes, StreamInterface stream)
+        public static void BroadCastSerialData(string comPort, int bytes, StreamInterface stream)
         {
-            OnDataReceived?.Invoke(new DataReceivedEventArgs { ComPort = comPort, Bytes = bytes, StreamInterface = stream });
+            OnDataReceived?.Invoke(new SerialDataEventArgs { ComPort = comPort, Bytes = bytes, StreamInterface = stream });
         }
     }
 }
