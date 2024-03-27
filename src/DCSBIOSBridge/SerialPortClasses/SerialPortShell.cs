@@ -1,11 +1,11 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.IO.Ports;
 using System.Threading.Channels;
 using DCS_BIOS.EventArgs;
 using DCS_BIOS.Interfaces;
 using DCSBIOSBridge.Events;
 using DCSBIOSBridge.Events.Args;
-using DCSBIOSBridge.Interfaces;
 using DCSBIOSBridge.misc;
 using Microsoft.Win32;
 using NLog;
@@ -62,6 +62,8 @@ namespace DCSBIOSBridge.SerialPortClasses
                 SerialPort = _serialPort
             };
             _serialPort.DataReceived += _serialReceiver.ReceiveTextOverSerial;
+            _serialPort.ErrorReceived += _serialReceiver.SerialPortError;
+
             ApplyPortConfig();
 
             if (serialPortSetting.Connected)
@@ -193,7 +195,7 @@ namespace DCSBIOSBridge.SerialPortClasses
 
         private async Task QueueSerialData(byte[] data)
         {
-            if (data == null || data.Length == 0 || !_serialPort.IsOpen) return;
+            if (data == null || data.Length == 0 || _serialPort == null || !_serialPort.IsOpen) return;
 
             var cts = new CancellationTokenSource(Constants.MS100);
             await _serialDataChannel.Writer.WriteAsync(data, cts.Token);
@@ -214,11 +216,19 @@ namespace DCSBIOSBridge.SerialPortClasses
 
                     var cts2 = new CancellationTokenSource(Constants.MS200);
                     await _serialPort.BaseStream.WriteAsync(serialDataArray, 0, serialDataArray.Length, cts2.Token);
-                    DBEventManager.BroadCastDataReceived(ComPort, serialDataArray.Length, StreamInterface.SerialPortWritten);
+                    DBEventManager.BroadCastSerialData(ComPort, serialDataArray.Length, StreamInterface.SerialPortWritten);
+                }
+                catch (IOException e)
+                {
+                    Logger.Error("AsyncSerialDataWrite failed => {0}", e);
+                    DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.IOError);
+                    break;
                 }
                 catch (Exception e)
                 {
                     Logger.Error("AsyncSerialDataWrite failed => {0}", e);
+                    DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Error);
+                    break;
                 }
             }
         }
@@ -411,7 +421,7 @@ namespace DCSBIOSBridge.SerialPortClasses
             {
                 return false;
             }
-            var existingPorts = SerialPort.GetPortNames();
+            var existingPorts = Common.GetSerialPortNames();
             return existingPorts.Any(portName.Equals);
         }
     }

@@ -33,7 +33,6 @@ namespace DCSBIOSBridge
         ISerialPortStatusListener, ISettingsDirtyListener, ISerialPortUserControlListener, IWindowsSerialPortEventListener, IDisposable
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private List<string> _lastSerialPortsWhenChecking = new();
         private readonly object _lockObject = new();
         private const string WindowName = "DCS-BIOS Bridge ";
         private DCSBIOS _dcsBios;
@@ -42,7 +41,7 @@ namespace DCSBIOSBridge
         private readonly SerialPortsProfileHandler _profileHandler = new();
         private readonly SerialPortService _serialPortService = new();
         private List<SerialPortUserControl> _serialPortUserControls = new();
-        
+
         public MainWindow()
         {
             InitializeComponent();
@@ -103,9 +102,7 @@ namespace DCSBIOSBridge
                 Left = Settings.Default.MainWindowLeft;
                 Height = Settings.Default.MainWindowHeight;
                 Width = Settings.Default.MainWindowWidth;
-
-                _lastSerialPortsWhenChecking = SerialPort.GetPortNames().ToList();
-
+                
                 CreateDCSBIOS();
 
                 CheckForNewRelease();
@@ -228,7 +225,7 @@ namespace DCSBIOSBridge
         {
             try
             {
-                var thread = new Thread(CheckComPortExistenceStatus);
+                var thread = new Thread(() => CheckComPortExistenceStatus(e.SerialPorts, e.EventType));
                 thread.SetApartmentState(ApartmentState.STA);
                 thread.Start();
             }
@@ -258,7 +255,7 @@ namespace DCSBIOSBridge
             }
         }
 
-        private void CheckComPortExistenceStatus()
+        private void CheckComPortExistenceStatus(string[] comPorts, WindowsSerialPortEventType eventType)
         {
             try
             {
@@ -268,24 +265,25 @@ namespace DCSBIOSBridge
                     // if new profile then don't send list, affects whether to remove or grey them out when removed from computer
                     DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.Check, null, null, _profileHandler.IsNewProfile ? null : _profileHandler.SerialPortSettings);
 
-                    var currentPorts = SerialPort.GetPortNames();
-
-                    if (currentPorts.Length < _lastSerialPortsWhenChecking.Count)
+                    switch (eventType)
                     {
-                        //No port added
-                        _lastSerialPortsWhenChecking = SerialPort.GetPortNames().ToList();
-                        return;
-                    }
-
-                    foreach (var currentPort in currentPorts)
-                    {
-                        if (_lastSerialPortsWhenChecking.Any(o => o == currentPort) == false)
+                        case WindowsSerialPortEventType.Insertion:
+                            {
+                                foreach (var comPort in comPorts)
+                                {
+                                    if (Dispatcher.Invoke(() => _serialPortUserControls.Any(o => o.Name == comPort)) == false)
+                                    {
+                                        Dispatcher.Invoke(() => AddSerialPort(comPort));
+                                    }
+                                }
+                                break;
+                            }
+                        case WindowsSerialPortEventType.Removal:
                         {
-                            Dispatcher.Invoke(() => AddSerialPort(currentPort));
+                            // Handled via other means
+                            break;
                         }
                     }
-
-                    _lastSerialPortsWhenChecking = SerialPort.GetPortNames().ToList();
                 }
             }
             catch (Exception ex)
@@ -296,10 +294,10 @@ namespace DCSBIOSBridge
 
         private void ListAllSerialPorts()
         {
-            _lastSerialPortsWhenChecking = SerialPort.GetPortNames().ToList();
+            var serialPorts= Common.GetSerialPortNames().ToList();
             _profileHandler.ClearHiddenPorts();
 
-            foreach (var port in _lastSerialPortsWhenChecking)
+            foreach (var port in serialPorts)
             {
                 if (_serialPortUserControls.Any(o => o.Name == port) == false)
                 {
@@ -455,7 +453,7 @@ namespace DCSBIOSBridge
             {
                 if (_serialPortUserControls.Count(o => o.Name == serialPortName) > 0) return;
 
-                var serialPortUserControl = new SerialPortUserControl(new SerialPortSetting { ComPort = serialPortName}, (HardwareInfoToShow)Settings.Default.ShowInfoType);
+                var serialPortUserControl = new SerialPortUserControl(new SerialPortSetting { ComPort = serialPortName }, (HardwareInfoToShow)Settings.Default.ShowInfoType);
                 AddUserControlToUI(serialPortUserControl);
                 DBEventManager.BroadCastPortStatus(serialPortName, SerialPortStatus.Added, 0, null, serialPortUserControl.SerialPortSetting);
             }
@@ -656,10 +654,9 @@ namespace DCSBIOSBridge
                 Common.ShowErrorMessageBox(ex);
             }
         }
-        
+
         private async void CheckForNewRelease()
         {
-            // #if !DEBUG
             var assembly = Assembly.GetExecutingAssembly();
             var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             if (string.IsNullOrEmpty(fileVersionInfo.FileVersion)) return;
@@ -668,7 +665,7 @@ namespace DCSBIOSBridge
 
             try
             {
-                var dateTime = DateTime.Now;// Settings.Default.LastGitHubCheck;
+                var dateTime = Settings.Default.LastGitHubCheck;
 
                 var client = new GitHubClient(new ProductHeaderValue("DCSBIOSBridge"));
                 var timeSpan = DateTime.Now - dateTime;
@@ -709,10 +706,8 @@ namespace DCSBIOSBridge
                 Logger.Error(ex, "Error checking for newer releases.");
                 LabelVersionInformation.Text = "v." + fileVersionInfo.FileVersion;
             }
-
-            // #endif
         }
-        
+
         private void Hyperlink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             try
@@ -759,8 +754,8 @@ namespace DCSBIOSBridge
         {
             foreach (var item in MenuItemShow.Items)
             {
-                if(item is not MenuItem menuItem || menuItem.Tag == null) continue;
-                menuItem.IsChecked = int.Parse(menuItem.Tag.ToString() ?? "0" ) == Settings.Default.ShowInfoType;
+                if (item is not MenuItem menuItem || menuItem.Tag == null) continue;
+                menuItem.IsChecked = int.Parse(menuItem.Tag.ToString() ?? "0") == Settings.Default.ShowInfoType;
             }
 
             DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.ShowInfo, null, null, null, (HardwareInfoToShow)Settings.Default.ShowInfoType);
@@ -771,7 +766,7 @@ namespace DCSBIOSBridge
             try
             {
                 var menuItem = (MenuItem)sender;
-                
+
                 Settings.Default.ShowInfoType = int.Parse(menuItem.Tag.ToString() ?? "0");
                 Settings.Default.Save();
 

@@ -6,7 +6,7 @@
         SerialPortRead
     }
 
-    public class DataReceivedEventArgs : EventArgs
+    public class SerialDataEventArgs : EventArgs
     {
         public string ComPort { get; init; }
         public int Bytes { get; init; }

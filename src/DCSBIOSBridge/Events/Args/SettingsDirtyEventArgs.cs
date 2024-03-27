@@ -2,6 +2,6 @@
 {
     public class SettingsDirtyEventArgs : EventArgs
     {
-        public bool IsDirty { get; init; }        
+        public bool IsDirty { get; init;  }        
     }
 }

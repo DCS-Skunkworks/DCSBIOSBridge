@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.IO.Ports;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
@@ -13,7 +14,15 @@ namespace DCSBIOSBridge.misc
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static readonly Encoding UsedEncoding = Encoding.GetEncoding(28591);
-        
+
+
+        public static string[] GetSerialPortNames()
+        {
+            /*
+             * Sometimes when disconnecting cables this can return same port listed 3 times.
+             */
+            return SerialPort.GetPortNames().Distinct().ToArray();
+        }
 
         public static Microsoft.Win32.OpenFileDialog OpenFileDialog(string initialDirectory)
         {
@@ -26,7 +35,7 @@ namespace DCSBIOSBridge.misc
                 Filter = Constants.ProfileFilter
             };
         }
-        
+
         public static Microsoft.Win32.SaveFileDialog SaveProfileDialog(string lastDirectory)
         {
             return new Microsoft.Win32.SaveFileDialog
@@ -130,11 +139,11 @@ namespace DCSBIOSBridge.misc
             if (depObj != null)
             {
                 var count = 0;
-                Application.Current.Dispatcher.Invoke(new Action(() => count= VisualTreeHelper.GetChildrenCount(depObj)));
+                Application.Current.Dispatcher.Invoke(new Action(() => count = VisualTreeHelper.GetChildrenCount(depObj)));
                 for (var i = 0; i < count; i++)
                 {
                     DependencyObject child = null;
-                    Application.Current.Dispatcher.Invoke(new Action(() => child = VisualTreeHelper.GetChild(depObj, i))); 
+                    Application.Current.Dispatcher.Invoke(new Action(() => child = VisualTreeHelper.GetChild(depObj, i)));
                     if (child != null && child is T)
                     {
                         yield return (T)child;
