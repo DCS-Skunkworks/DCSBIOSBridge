@@ -6,6 +6,7 @@ using DCS_BIOS.EventArgs;
 using DCS_BIOS.Interfaces;
 using DCSBIOSBridge.Events;
 using DCSBIOSBridge.Events.Args;
+using DCSBIOSBridge.Interfaces;
 using DCSBIOSBridge.misc;
 using Microsoft.Win32;
 using NLog;
@@ -22,10 +23,10 @@ namespace DCSBIOSBridge.SerialPortClasses
         Hidden,
         None,
         Ok,
-        Error,
-        Critical,
         IOError,
         TimeOutError,
+        Error,
+        Critical,
         BytesWritten,
         BytesRead,
         DCSBIOSCommandCalled,
@@ -49,28 +50,21 @@ namespace DCSBIOSBridge.SerialPortClasses
         private readonly Channel<byte[]> _serialDataChannel = Channel.CreateUnbounded<byte[]>();
         private AutoResetEvent _serialDataWaitingForWriteResetEvent = new(false);
         private bool _shutdown;
+        private bool _portShouldBeOpen;
 
         public SerialPortSetting SerialPortSetting { get; set; }
 
         public SerialPortShell(SerialPortSetting serialPortSetting)
         {
+            Debug.WriteLine($"Creating shell for {serialPortSetting.ComPort}");
             SerialPortSetting = serialPortSetting;
             GetFriendlyName();
-            _serialPort = new SerialPort();
-            _serialReceiver = new SerialReceiver
-            {
-                SerialPort = _serialPort
-            };
-            _serialPort.DataReceived += _serialReceiver.ReceiveTextOverSerial;
-            _serialPort.ErrorReceived += _serialReceiver.SerialPortError;
+
+            var thread = new Thread(CheckPortOpen);
+            thread.Start();
 
             ApplyPortConfig();
 
-            if (serialPortSetting.Connected)
-            {
-                _serialPort.Open();
-                DBEventManager.BroadCastPortStatus(_serialPort.PortName, SerialPortStatus.Opened);
-            }
             BIOSEventHandler.AttachAsyncBulkDataListener(this);
         }
 
@@ -84,6 +78,10 @@ namespace DCSBIOSBridge.SerialPortClasses
             if (disposing)
             {
                 _shutdown = true;
+                _portShouldBeOpen = false;
+
+                Debug.WriteLine($"Disposing shell for {SerialPortSetting.ComPort}");
+                
                 BIOSEventHandler.DetachAsyncBulkDataListener(this);
                 //  dispose managed state (managed objects).
                 _serialDataWaitingForWriteResetEvent?.Set();
@@ -91,7 +89,7 @@ namespace DCSBIOSBridge.SerialPortClasses
                 _serialDataWaitingForWriteResetEvent?.Dispose();
                 _serialDataWaitingForWriteResetEvent = null;
 
-                _serialReceiver.Release();
+                _serialReceiver?.Dispose();
                 _serialReceiver = null;
 
                 _serialPort?.Close();
@@ -118,7 +116,20 @@ namespace DCSBIOSBridge.SerialPortClasses
 
         public void Open()
         {
-            if (_serialPort != null && _serialPort.IsOpen || _serialPort == null) return;
+            if (_serialPort != null && _serialPort.IsOpen) return;
+
+            Logger.Info($"Creating and opening serial port {SerialPortSetting.ComPort}");
+ 
+            _serialReceiver?.Dispose();
+            _serialReceiver = null;
+
+            _serialPort = new SerialPort();
+            _serialReceiver = new SerialReceiver
+            {
+                SerialPort = _serialPort
+            };
+            _serialPort.DataReceived += _serialReceiver.ReceiveTextOverSerial;
+            _serialPort.ErrorReceived += _serialReceiver.SerialPortError;
 
             ApplyPortConfig();
             try
@@ -131,8 +142,11 @@ namespace DCSBIOSBridge.SerialPortClasses
                 Common.ShowErrorMessageBox(e, $"Failed to open port {SerialPortSetting.ComPort}.");
                 Logger.Error(e);
             }
+
+            _portShouldBeOpen = true;
+
             _ = Task.Run(AsyncSerialDataWrite);
-            DBEventManager.BroadCastPortStatus(_serialPort.PortName, SerialPortStatus.Opened);
+            DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Opened);
         }
 
         public bool IsOpen => _serialPort != null && _serialPort.IsOpen;
@@ -141,13 +155,20 @@ namespace DCSBIOSBridge.SerialPortClasses
         {
             try
             {
-                if (_serialPort != null && !_serialPort.IsOpen) return;
+                if (_serialPort == null) return;
 
-                if (_serialPort != null && _serialPort.IsOpen)
-                {
-                    _serialPort.Close();
-                    DBEventManager.BroadCastPortStatus(_serialPort.PortName, SerialPortStatus.Closed);
-                }
+                _portShouldBeOpen = false;
+
+                Logger.Info($"Closing and disposing serial port {SerialPortSetting.ComPort}");
+
+                _serialReceiver?.Dispose();
+                _serialReceiver = null;
+
+                _serialPort.Close();
+                _serialPort.Dispose();
+                _serialPort = null;
+
+                DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Closed);
             }
             catch (Exception e)
             {
@@ -217,6 +238,12 @@ namespace DCSBIOSBridge.SerialPortClasses
                     var cts2 = new CancellationTokenSource(Constants.MS200);
                     await _serialPort.BaseStream.WriteAsync(serialDataArray, 0, serialDataArray.Length, cts2.Token);
                     DBEventManager.BroadCastSerialData(ComPort, serialDataArray.Length, StreamInterface.SerialPortWritten);
+                }
+                catch (OperationCanceledException e)
+                {
+                    Logger.Error("AsyncSerialDataWrite failed => {0}", e);
+                    DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Error);
+                    break;
                 }
                 catch (IOException e)
                 {
@@ -423,6 +450,31 @@ namespace DCSBIOSBridge.SerialPortClasses
             }
             var existingPorts = Common.GetSerialPortNames();
             return existingPorts.Any(portName.Equals);
+        }
+
+        private void CheckPortOpen()
+        {
+            try
+            {
+                while (!_shutdown)
+                {
+                    if (_portShouldBeOpen)
+                    {
+                        if (_serialPort == null || !_serialPort.IsOpen)
+                        {
+                            Logger.Error("Background Thread (CheckPortOpen) detected port is not open.");
+                            DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Critical);
+                            break;
+                        }
+                    }
+
+                    Thread.Sleep(Constants.MS1000);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Port check thread.");
+            }
         }
     }
 }

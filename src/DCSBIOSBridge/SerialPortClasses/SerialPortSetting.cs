@@ -31,7 +31,6 @@ namespace DCSBIOSBridge.SerialPortClasses
                 LineSignalRts = bool.Parse(list[9])
             };
             result.LineSignalRts = bool.Parse(list[9]);
-            result.Connected = list[10].Equals(Constants.ProfileOpenKeyword);
             return result;
         }
 
@@ -47,8 +46,7 @@ namespace DCSBIOSBridge.SerialPortClasses
                           WriteTimeout + "|" +
                           ReadTimeout + "|" +
                           LineSignalDtr + "|" +
-                          LineSignalRts + "|" +
-                          (Connected ? Constants.ProfileOpenKeyword : Constants.ProfileClosedKeyword) + "}");
+                          LineSignalRts);
             return result.ToString();
         }
 
@@ -71,7 +69,5 @@ namespace DCSBIOSBridge.SerialPortClasses
         public bool LineSignalDtr { get; set; } = true;
 
         public bool LineSignalRts { get; set; }
-
-        public bool Connected { get; set; }
     }
 }

@@ -16,12 +16,12 @@ namespace DCSBIOSBridge.misc
         public static readonly Encoding UsedEncoding = Encoding.GetEncoding(28591);
 
 
-        public static string[] GetSerialPortNames()
+        public static List<string> GetSerialPortNames()
         {
             /*
              * Sometimes when disconnecting cables this can return same port listed 3 times.
              */
-            return SerialPort.GetPortNames().Distinct().ToArray();
+            return SerialPort.GetPortNames().Distinct().ToList();
         }
 
         public static Microsoft.Win32.OpenFileDialog OpenFileDialog(string initialDirectory)

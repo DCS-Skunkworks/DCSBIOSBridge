@@ -10,6 +10,7 @@ using DCSBIOSBridge.misc;
 using DCSBIOSBridge.Properties;
 using DCSBIOSBridge.SerialPortClasses;
 using DCSBIOSBridge.Windows;
+using NLog;
 
 namespace DCSBIOSBridge.UserControls
 {
@@ -29,6 +30,8 @@ namespace DCSBIOSBridge.UserControls
     /// </summary>
     public partial class SerialPortUserControl : ISerialPortStatusListener, ISerialPortUserControlListener, ISerialDataListener, INotifyPropertyChanged, IDisposable
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly SerialPortShell _serialPortShell;
         private double _bytesFromDCSBIOS;
         private double _bytesFromSerialPort;
@@ -143,11 +146,11 @@ namespace DCSBIOSBridge.UserControls
                     case SerialPortStatus.Ok:
                         break;
                     case SerialPortStatus.Critical:
-                        break;
                     case SerialPortStatus.Error:
                     case SerialPortStatus.IOError:
                     case SerialPortStatus.TimeOutError:
                         {
+                            Logger.Error($"(SerialPortUserControl) Error detected on {e.SerialPortName}. I am closing myself (& port) down.");
                             BroadCastClosedAndDispose(SerialPortUserControlStatus.Closed);
                             break;
                         }
