@@ -19,8 +19,6 @@
         public const string ProfileFilter = "(.dcs-bios_settings)|*.dcs-bios_settings";
         public const string ProfileSettingKeyword = "SerialPort{";
         public const string ProfileHiddenKeyword = "HiddenList{";
-        public const string ProfileOpenKeyword = "Open";
-        public const string ProfileClosedKeyword = "Closed";
 
         /*
          * 15.03.2024 JDA

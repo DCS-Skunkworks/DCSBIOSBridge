@@ -66,7 +66,7 @@ namespace DCSBIOSBridge
                 _dcsBios?.Dispose();
 
                 DBEventManager.BroadCastSerialPortUserControlStatus(SerialPortUserControlStatus.DoDispose);
-                _serialPortService.CleanUp();
+                _serialPortService.Dispose();
                 DBEventManager.DetachSerialPortStatusListener(this);
                 DBEventManager.DetachWindowsSerialPortEventListener(this);
                 DBEventManager.DetachSerialPortUserControlListener(this);
@@ -613,9 +613,9 @@ namespace DCSBIOSBridge
             }
         }
 
-        private void MenuItemErrorLog_OnClick(object sender, RoutedEventArgs e)
+        private void MenuItemLogFile_OnClick(object sender, RoutedEventArgs e)
         {
-            Common.TryOpenLogFileWithTarget("error_logfile");
+            Common.TryOpenLogFileWithTarget("logfile");
         }
 
         public void OnSettingsDirty(SettingsDirtyEventArgs args)

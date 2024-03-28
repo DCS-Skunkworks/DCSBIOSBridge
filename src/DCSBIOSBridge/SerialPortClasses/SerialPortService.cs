@@ -2,24 +2,28 @@
 using System.IO.Ports;
 using System.Management;
 using DCSBIOSBridge.Events;
+using DCSBIOSBridge.Events.Args;
+using DCSBIOSBridge.Interfaces;
 using DCSBIOSBridge.misc;
 using NLog;
+using Theraot.Collections;
 
 namespace DCSBIOSBridge.SerialPortClasses
 {
 
 
     //Creds to : http://stackoverflow.com/questions/4199083/detect-serial-port-insertion-removal
-    public class SerialPortService
+    public class SerialPortService : ISerialPortStatusListener, IDisposable
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private string[] _serialPorts;
+        private List<string> _serialPorts;
         private ManagementEventWatcher _managementEventWatchArrival;
         private ManagementEventWatcher _managementEventWatchRemoval;
 
         public SerialPortService()
         {
             _serialPorts = Common.GetSerialPortNames();
+            DBEventManager.AttachSerialPortStatusListener(this);
             MonitorDeviceChanges();
         }
         /// <summary>
@@ -35,10 +39,12 @@ namespace DCSBIOSBridge.SerialPortClasses
         ///     at System.Management.ManagementEventWatcher.Finalize()
         ///InnerException: 
         /// </summary>
-        public void CleanUp()
+        
+        public void Dispose()
         {
-            _managementEventWatchArrival.Stop();
-            _managementEventWatchRemoval.Stop();
+            DBEventManager.DetachSerialPortStatusListener(this);
+            _managementEventWatchArrival?.Dispose();
+            _managementEventWatchRemoval?.Dispose();
         }
 
         private void MonitorDeviceChanges()
@@ -68,16 +74,22 @@ namespace DCSBIOSBridge.SerialPortClasses
         {
             lock (_serialPorts)
             {
-                Debug.WriteLine($"_serialPorts = {string.Join(", ", _serialPorts)}");
                 var availableSerialPorts = Common.GetSerialPortNames();
-                Debug.WriteLine($"Available ports = {string.Join(", ", availableSerialPorts)}");
+
+                if (availableSerialPorts.Except(_serialPorts).ToArray().Length == 0)
+                {
+                    Logger.Info($"No port changes detected. SerialPorts = {string.Join(", ", _serialPorts)}");
+                    return;
+                }
+
+                Logger.Info($"Earlier ports = {string.Join(", ", _serialPorts)}, available ports = {string.Join(", ", availableSerialPorts)}");
+
                 switch (eventType)
                 {
                     case WindowsSerialPortEventType.Insertion:
                         {
                             var addedPorts = availableSerialPorts.Except(_serialPorts).ToArray();
-                            Debug.WriteLine($"Added ports = {string.Join(", ", addedPorts)}");
-                            if (addedPorts.Length == 0) break;
+                            Logger.Info($"Added ports = {string.Join(", ", addedPorts)}");
 
                             DBEventManager.BroadCastWindowsPortEvent(null, addedPorts, eventType);
                             break;
@@ -85,8 +97,7 @@ namespace DCSBIOSBridge.SerialPortClasses
                     case WindowsSerialPortEventType.Removal:
                         {
                             var removedPorts = _serialPorts.Except(availableSerialPorts).ToArray();
-                            Debug.WriteLine($"Removed ports = {string.Join(", ", removedPorts)}");
-                            if (removedPorts.Length == 0) break;
+                            Logger.Info($"Removed ports = {string.Join(", ", removedPorts)}");
 
                             DBEventManager.BroadCastWindowsPortEvent(null, removedPorts, eventType);
                             break;
@@ -110,6 +121,57 @@ namespace DCSBIOSBridge.SerialPortClasses
             }
         }
         */
+        public void OnSerialPortStatusChanged(SerialPortStatusEventArgs e)
+        {
+            switch (e.SerialPortStatus)
+            {
+                case SerialPortStatus.Opened:
+                    break;
+                case SerialPortStatus.Closed:
+                    break;
+                case SerialPortStatus.Open:
+                    break;
+                case SerialPortStatus.Close:
+                    break;
+                case SerialPortStatus.Added:
+                    break;
+                case SerialPortStatus.Hidden:
+                    break;
+                case SerialPortStatus.None:
+                    break;
+                case SerialPortStatus.Ok:
+                    break;
+                case SerialPortStatus.Error:
+                    break;
+                case SerialPortStatus.IOError:
+                    break;
+                case SerialPortStatus.Critical:
+                    {
+                        /*
+                         * Critical here is used when:
+                         * - port is open
+                         * - USB cable is removed
+                         *
+                         * Windows SerialPort.GetPortNames() list is not updated when this
+                         * happens.
+                         */
+                        _serialPorts.RemoveWhere(o => o == e.SerialPortName);
+                        break;
+                    }
+                case SerialPortStatus.TimeOutError:
+                    break;
+                case SerialPortStatus.BytesWritten:
+                    break;
+                case SerialPortStatus.BytesRead:
+                    break;
+                case SerialPortStatus.DCSBIOSCommandCalled:
+                    break;
+                case SerialPortStatus.Settings:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
     }
 
 

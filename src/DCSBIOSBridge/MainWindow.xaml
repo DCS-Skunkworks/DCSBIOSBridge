@@ -46,7 +46,7 @@
                 <MenuItem Header="Save" Name="MenuItemSave" Click="MenuItemSave_OnClick"/>
                 <MenuItem Header="Save As.." Name="MenuItemSaveAs" Click="MenuItemSaveAs_OnClick" />
                 <Separator />
-                <MenuItem Name ="MenuItemErrorLog" Header="Open error log" Click="MenuItemErrorLog_OnClick" />
+                <MenuItem Name ="MenuItemLogFile" Header="Open log" Click="MenuItemLogFile_OnClick" />
                 <Separator />
                 <MenuItem Header="Exit" Name="MenuItemExit" Click="MenuItemExit_OnClick" />
             </MenuItem>

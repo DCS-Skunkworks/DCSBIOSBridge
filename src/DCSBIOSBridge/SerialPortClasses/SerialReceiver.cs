@@ -14,7 +14,7 @@ namespace DCSBIOSBridge.SerialPortClasses;
 /// <summary>
 /// Handles reading from serial port.
 /// </summary>
-internal class SerialReceiver : ISerialReceiver
+internal class SerialReceiver : ISerialReceiver, IDisposable
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     private SemaphoreSlim ReadFromSerialPortSemaphore { get; } = new(1);
@@ -22,10 +22,11 @@ internal class SerialReceiver : ISerialReceiver
     public SerialPort SerialPort { get; set; }
     private readonly StringBuilder _incomingData = new();
 
-    public void Release()
+    public void Dispose()
     {
         SerialPort.DataReceived -= ReceiveTextOverSerial;
-        SerialPort = null;
+        SerialPort.ErrorReceived -= SerialPortError;
+        ReadFromSerialPortSemaphore?.Dispose();
     }
 
     public async void ReceiveTextOverSerial(object sender, SerialDataReceivedEventArgs e)
