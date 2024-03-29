@@ -98,8 +98,6 @@ namespace DCSBIOSBridge.misc
                         break;
                     case SerialPortStatus.BytesRead:
                         break;
-                    case SerialPortStatus.DCSBIOSCommandCalled:
-                        break;
                     case SerialPortStatus.Settings:
                         {
                             UpdateSettings(e.SerialPortSetting);
@@ -223,7 +221,7 @@ namespace DCSBIOSBridge.misc
                     if (fileLine.StartsWith('#')) continue;
 
 
-                    if (fileLine.StartsWith(Constants.ProfileSettingKeyword))
+                    if (fileLine.StartsWith(Constants.ProfileSettingKeywordStart))
                     {
                         SerialPortSettings.Add(SerialPortSetting.ParseSetting(fileLine));
                     }

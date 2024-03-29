@@ -37,6 +37,7 @@ namespace DCSBIOSBridge.Windows
             ComboBoxParity.SelectedValue = SerialPortSetting.Parity;
             ComboBoxStopBits.SelectedValue = SerialPortSetting.Stopbits;
             ComboBoxDataBits.SelectedValue = SerialPortSetting.Databits;
+            ComboBoxHandshake.SelectedValue = SerialPortSetting.Handshake;
             CheckBoxLineSignalRts.IsChecked = SerialPortSetting.LineSignalRts;
             CheckBoxLineSignalDtr.IsChecked = SerialPortSetting.LineSignalDtr;
             ComboBoxWriteTimeout.SelectedValue = SerialPortSetting.WriteTimeout;
@@ -52,6 +53,7 @@ namespace DCSBIOSBridge.Windows
                 SerialPortSetting.Parity = (Parity)Enum.Parse(typeof(Parity), ComboBoxParity.SelectedValue.ToString() ?? "None");
                 SerialPortSetting.Stopbits = (StopBits)Enum.Parse(typeof(StopBits), ComboBoxStopBits.SelectedValue.ToString() ?? "One");
                 SerialPortSetting.Databits = int.Parse(ComboBoxDataBits.SelectedValue.ToString() ?? "8");
+                SerialPortSetting.Handshake = (Handshake)Enum.Parse(typeof(Handshake), ComboBoxHandshake.SelectedValue.ToString() ?? "None");   
                 SerialPortSetting.LineSignalRts = CheckBoxLineSignalRts.IsChecked.GetValueOrDefault();
                 SerialPortSetting.LineSignalDtr = CheckBoxLineSignalDtr.IsChecked.GetValueOrDefault();
                 SerialPortSetting.WriteTimeout = int.Parse(ComboBoxWriteTimeout.SelectedValue.ToString() ?? "0");

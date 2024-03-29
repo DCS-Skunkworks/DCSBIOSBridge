@@ -35,7 +35,15 @@ namespace DCSBIOSBridge.SerialPortClasses
             {
                 if (_parentBaseStream != null && _parentBaseStream.CanRead)
                 {
-                    _parentBaseStream.Close();
+                    try
+                    {
+                        _parentBaseStream.Close();
+                    }
+                    catch (Exception e)
+                    {
+                        // ignored
+                    }
+
                     GC.ReRegisterForFinalize(_parentBaseStream);
                     _parentBaseStream = null;
                 }

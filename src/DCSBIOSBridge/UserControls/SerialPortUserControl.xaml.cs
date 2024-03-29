@@ -3,6 +3,8 @@ using System.IO.Ports;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using DCS_BIOS.EventArgs;
+using DCS_BIOS.Interfaces;
 using DCSBIOSBridge.Events;
 using DCSBIOSBridge.Events.Args;
 using DCSBIOSBridge.Interfaces;
@@ -28,7 +30,7 @@ namespace DCSBIOSBridge.UserControls
     /// <summary>
     /// Interaction logic for SerialPortUserControl.xaml
     /// </summary>
-    public partial class SerialPortUserControl : ISerialPortStatusListener, ISerialPortUserControlListener, ISerialDataListener, INotifyPropertyChanged, IDisposable
+    public partial class SerialPortUserControl : ISerialPortStatusListener, ISerialPortUserControlListener, ISerialDataListener, INotifyPropertyChanged, IDCSBiosCommandListener, IDisposable
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -51,6 +53,7 @@ namespace DCSBIOSBridge.UserControls
             DBEventManager.AttachSerialPortStatusListener(this);
             DBEventManager.AttachSerialPortUserControlListener(this);
             DBEventManager.AttachDataReceivedListener(this);
+            BIOSEventHandler.AttachCommandSentListener(this);
             IsEnabled = SerialPortShell.SerialPortCurrentlyExists(serialPortSetting.ComPort);
         }
 
@@ -67,6 +70,7 @@ namespace DCSBIOSBridge.UserControls
                 DBEventManager.DetachSerialPortStatusListener(this);
                 DBEventManager.DetachSerialPortUserControlListener(this);
                 DBEventManager.DetachDataReceivedListener(this);
+                BIOSEventHandler.DetachCommandSentListener(this);
                 _serialPortShell.Close();
                 _serialPortShell.Dispose();
             }
@@ -158,11 +162,6 @@ namespace DCSBIOSBridge.UserControls
                         break;
                     case SerialPortStatus.BytesRead:
                         break;
-                    case SerialPortStatus.DCSBIOSCommandCalled:
-                        {
-                            LastDCSBIOSCommand = e.DCSBIOSCommandCalled;
-                            break;
-                        }
                     case SerialPortStatus.Settings:
                         break;
                     default:
@@ -498,14 +497,25 @@ namespace DCSBIOSBridge.UserControls
                 };
                 if (serialPortConfigWindow.ShowDialog() == true)
                 {
-                    _serialPortShell.SerialPortSetting = serialPortConfigWindow.SerialPortSetting;
-                    _serialPortShell.ApplyPortConfig();
+                    _serialPortShell.ApplyPortConfig(serialPortConfigWindow.SerialPortSetting);
                     DBEventManager.BroadCastPortStatus(Name, SerialPortStatus.Settings, 0, null, _serialPortShell.SerialPortSetting);
                 }
             }
             catch (Exception ex)
             {
                 Common.ShowErrorMessageBox(ex);
+            }
+        }
+
+        public void DCSBIOSCommandSent(DCSBIOSCommandEventArgs e)
+        {
+            try
+            {
+                Dispatcher.Invoke(() => LastDCSBIOSCommand = e.Command);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
             }
         }
     }
