@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.IO.Ports;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -50,16 +51,15 @@ internal class SerialReceiver : ISerialReceiver, IDisposable
                         var array = Regex.Split(_incomingData.ToString(), @"(?<=[\n])");
                         foreach (var command in array)
                         {
-                            if (!command.EndsWith('\n')) continue;
+                            if (command.Trim().Length == 0 || !command.EndsWith('\n')) continue;
 
-                            DCSBIOS.Send(command);
-                            DBEventManager.BroadCastPortStatus(SerialPort.PortName, SerialPortStatus.DCSBIOSCommandCalled, 0, command);
+                            await DCSBIOS.Send(command);
                             DBEventManager.BroadCastSerialData(SerialPort.PortName, command.Length, StreamInterface.SerialPortRead);
                         }
                         // When all commands have been processed they can be removed from the buffer
                         foreach (var command in array)
                         {
-                            if (!command.EndsWith('\n')) continue;
+                            if (command.Trim().Length == 0 || !command.EndsWith('\n')) continue;
 
                             _incomingData.Replace(command, string.Empty);
                         }
@@ -95,8 +95,7 @@ internal class SerialReceiver : ISerialReceiver, IDisposable
                 }
             default:
                 {
-                    var message = "Socket switch statement defaulted.";
-                    Logger.Error(message);
+                    Logger.Error("Socket switch statement defaulted.");
                     DBEventManager.BroadCastPortStatus(SerialPort.PortName, SerialPortStatus.Error);
                     break;
                 }

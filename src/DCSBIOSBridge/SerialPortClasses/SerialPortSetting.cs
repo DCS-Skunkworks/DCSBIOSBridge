@@ -6,14 +6,17 @@ namespace DCSBIOSBridge.SerialPortClasses
 {
     public class SerialPortSetting
     {
+
         public static SerialPortSetting ParseSetting(string portSetting)
         {
+            if (!portSetting.StartsWith(Constants.ProfileSettingKeyword)) throw new Exception("Default port settings have changed. Please create a new profile. If you need to change the port settings do so for the new profile.");
+
             //SerialPort{_comPort|_baudRate|_handshake|_databits|_stopbits|_parity|_writeTimeout|_readTimeout|_lineSignalDtr|LineSignalRts|connectedStatus}
             //SerialPort{COM1|500000|None|8|One|None|40000|40000|True|False|Closed}
             if (string.IsNullOrEmpty(portSetting)) return null;
 
             //COM1|500000|None|8|One|None|40000|40000|True|False|Closed
-            var str = portSetting.Replace( Constants.ProfileSettingKeyword, "").Replace("}", "");
+            var str = portSetting.Replace(Constants.ProfileSettingKeyword, "").Replace("}", "");
 
             //COM1|500000|None|8|One|None|40000|40000|True|False|Closed
             var list = str.Split(["|"], StringSplitOptions.RemoveEmptyEntries);
@@ -37,7 +40,7 @@ namespace DCSBIOSBridge.SerialPortClasses
         public string ExportSetting()
         {
             var result = new StringBuilder();
-            result.Append("SerialPort{" + ComPort + "|" +
+            result.Append(Constants.ProfileSettingKeyword + ComPort + "|" +
                           BaudRate + "|" +
                           Handshake + "|" +
                           Databits + "|" +
@@ -51,23 +54,14 @@ namespace DCSBIOSBridge.SerialPortClasses
         }
 
         public string ComPort { get; set; }
-
-        public Handshake Handshake { get; set; }
-
         public int BaudRate { get; set; } = 250000;
-
-        public int Databits { get; set; } = 8;
-
         public Parity Parity { get; set; } = Parity.None;
-
-        public int ReadTimeout { get; set; }
-
-        public int WriteTimeout { get; set; }
-
+        public int Databits { get; set; } = 8;
         public StopBits Stopbits { get; set; } = StopBits.One;
-
-        public bool LineSignalDtr { get; set; } = true;
-
-        public bool LineSignalRts { get; set; }
+        public bool LineSignalDtr { get; set; }
+        public bool LineSignalRts { get; set; } = true;
+        public Handshake Handshake { get; set; }
+        public int ReadTimeout { get; set; }
+        public int WriteTimeout { get; set; }
     }
 }

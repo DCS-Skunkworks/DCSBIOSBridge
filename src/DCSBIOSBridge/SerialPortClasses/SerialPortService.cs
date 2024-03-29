@@ -76,7 +76,7 @@ namespace DCSBIOSBridge.SerialPortClasses
             {
                 var availableSerialPorts = Common.GetSerialPortNames();
 
-                if (availableSerialPorts.Except(_serialPorts).ToArray().Length == 0)
+                if (availableSerialPorts.Except(_serialPorts).ToArray().Length == 0 && _serialPorts.Except(availableSerialPorts).ToArray().Length == 0)
                 {
                     Logger.Info($"No port changes detected. SerialPorts = {string.Join(", ", _serialPorts)}");
                     return;
@@ -163,8 +163,6 @@ namespace DCSBIOSBridge.SerialPortClasses
                 case SerialPortStatus.BytesWritten:
                     break;
                 case SerialPortStatus.BytesRead:
-                    break;
-                case SerialPortStatus.DCSBIOSCommandCalled:
                     break;
                 case SerialPortStatus.Settings:
                     break;

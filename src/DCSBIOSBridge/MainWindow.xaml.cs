@@ -172,8 +172,6 @@ namespace DCSBIOSBridge
                         break;
                     case SerialPortStatus.BytesRead:
                         break;
-                    case SerialPortStatus.DCSBIOSCommandCalled:
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException(e.SerialPortStatus.ToString());
                 }

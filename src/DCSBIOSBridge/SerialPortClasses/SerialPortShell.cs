@@ -29,7 +29,6 @@ namespace DCSBIOSBridge.SerialPortClasses
         Critical,
         BytesWritten,
         BytesRead,
-        DCSBIOSCommandCalled,
         Settings
     }
 
@@ -62,9 +61,7 @@ namespace DCSBIOSBridge.SerialPortClasses
 
             var thread = new Thread(CheckPortOpen);
             thread.Start();
-
-            ApplyPortConfig();
-
+            
             BIOSEventHandler.AttachAsyncBulkDataListener(this);
         }
 
@@ -188,29 +185,30 @@ namespace DCSBIOSBridge.SerialPortClasses
             }
         }
 
-        public void ApplyPortConfig()
+        public void ApplyPortConfig(SerialPortSetting serialPortSetting)
+        {
+            if(serialPortSetting == null) return;
+
+            SerialPortSetting = serialPortSetting;
+            Close();
+            Open();
+        }
+
+        private void ApplyPortConfig()
         {
             if (_safeSerialPort == null) return;
-
-            var wasOpen = _safeSerialPort.IsOpen;
-
-            _safeSerialPort.Close();
-
+            
             _safeSerialPort.PortName = SerialPortSetting.ComPort;
             _safeSerialPort.BaudRate = SerialPortSetting.BaudRate;
             _safeSerialPort.Parity = SerialPortSetting.Parity;
             _safeSerialPort.StopBits = SerialPortSetting.Stopbits;
             _safeSerialPort.DataBits = SerialPortSetting.Databits;
-            if (!SerialPortSetting.LineSignalDtr && !SerialPortSetting.LineSignalRts)
-            {
-                _safeSerialPort.Handshake = Handshake.XOnXOff;
-            }
+            _safeSerialPort.Handshake = SerialPortSetting.Handshake;
             _safeSerialPort.DtrEnable = SerialPortSetting.LineSignalDtr;
             _safeSerialPort.RtsEnable = SerialPortSetting.LineSignalRts;
             _safeSerialPort.WriteTimeout = SerialPortSetting.WriteTimeout == 0 ? SerialPort.InfiniteTimeout : SerialPortSetting.WriteTimeout;
             _safeSerialPort.ReadTimeout = SerialPortSetting.ReadTimeout == 0 ? SerialPort.InfiniteTimeout : SerialPortSetting.ReadTimeout;
 
-            if (wasOpen) _safeSerialPort.Open();
             GetFriendlyName();
         }
 

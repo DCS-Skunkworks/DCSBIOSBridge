@@ -29,10 +29,11 @@
         <Label Content="Parity" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="2"/>
         <Label Content="StopBits" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="3"/>
         <Label Content="DataBits" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="4"/>
-        <Label Content="LineSignalRts" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="5"/>
-        <Label Content="LineSignalDtr" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="6"/>
-        <Label Content="Write timeout" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="7"/>
-        <Label Content="Read timeout" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="8"/>
+        <Label Content="HandShake" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="5"/>
+        <Label Content="LineSignalRts" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="6"/>
+        <Label Content="LineSignalDtr" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="7"/>
+        <Label Content="Write timeout" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="8"/>
+        <Label Content="Read timeout" Margin="0,0,0,0" VerticalAlignment="Top"  Grid.Column="0" Grid.Row="9"/>
 
         <Label Name="LabelSerialPortName" Content="SerialPort NAME HERE" FontWeight="ExtraBold"  Margin="0,0,5,0" VerticalAlignment="Top" Grid.Column="1" Grid.Row="0"/>
         <ComboBox Name="ComboBoxBaud" SelectedIndex="3" Height="22" Margin="0,0,5,0"  Grid.Column="1" Grid.Row="1" SelectedValuePath="Content">
@@ -63,10 +64,16 @@
             <ComboBoxItem >7</ComboBoxItem>
             <ComboBoxItem >8</ComboBoxItem>
         </ComboBox>
-        <CheckBox Name="CheckBoxLineSignalRts" FlowDirection="RightToLeft" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Grid.Row="5" ></CheckBox>
-        <CheckBox Name="CheckBoxLineSignalDtr" FlowDirection="RightToLeft" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Column="1" Grid.Row="6"></CheckBox>
+        <ComboBox Name="ComboBoxHandshake"   Height="22" SelectedIndex="0"  Grid.Column="1" Grid.Row="5" SelectedValuePath="Content" Margin="0,0,5,0"  >
+            <ComboBoxItem >None</ComboBoxItem>
+            <ComboBoxItem >RequestToSend</ComboBoxItem>
+            <ComboBoxItem >RequestToSendXOnXOff</ComboBoxItem>
+            <ComboBoxItem >XOnXOff</ComboBoxItem>
+        </ComboBox>
+        <CheckBox Name="CheckBoxLineSignalRts" FlowDirection="RightToLeft" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Grid.Row="6" ></CheckBox>
+        <CheckBox Name="CheckBoxLineSignalDtr" FlowDirection="RightToLeft" HorizontalAlignment="Left" VerticalAlignment="Center"  Grid.Column="1" Grid.Row="7"></CheckBox>
 
-        <ComboBox Name="ComboBoxWriteTimeout"   Height="22" SelectedIndex="0"   Grid.Column="1" Grid.Row="7" SelectedValuePath="Content" Margin="0,0,5,0"  >
+        <ComboBox Name="ComboBoxWriteTimeout"   Height="22" SelectedIndex="0"   Grid.Column="1" Grid.Row="8" SelectedValuePath="Content" Margin="0,0,5,0"  >
             <ComboBoxItem >0</ComboBoxItem>
             <ComboBoxItem >5000</ComboBoxItem>
             <ComboBoxItem >7500</ComboBoxItem>
@@ -74,7 +81,7 @@
             <ComboBoxItem >40000</ComboBoxItem>
             <ComboBoxItem >3600000</ComboBoxItem>
         </ComboBox>
-        <ComboBox Name="ComboBoxReadTimeout"   Height="22" SelectedIndex="0"   Grid.Column="1" Grid.Row="8" SelectedValuePath="Content" Margin="0,0,5,0"  >
+        <ComboBox Name="ComboBoxReadTimeout"   Height="22" SelectedIndex="0"   Grid.Column="1" Grid.Row="9" SelectedValuePath="Content" Margin="0,0,5,0"  >
             <ComboBoxItem >0</ComboBoxItem>
             <ComboBoxItem >5000</ComboBoxItem>
             <ComboBoxItem >7500</ComboBoxItem>

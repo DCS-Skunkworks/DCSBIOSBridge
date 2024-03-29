@@ -17,7 +17,8 @@
         public const string WildCardProfileSearch = "*.dcs-bios_settings";
         public const string ProfileExtension = ".dcs-bios_settings";
         public const string ProfileFilter = "(.dcs-bios_settings)|*.dcs-bios_settings";
-        public const string ProfileSettingKeyword = "SerialPort{";
+        public const string ProfileSettingKeywordStart = "SerialPort";
+        public const string ProfileSettingKeyword = "SerialPortV2{";
         public const string ProfileHiddenKeyword = "HiddenList{";
 
         /*
