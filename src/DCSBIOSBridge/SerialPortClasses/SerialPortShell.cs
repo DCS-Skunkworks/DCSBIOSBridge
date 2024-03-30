@@ -189,9 +189,15 @@ namespace DCSBIOSBridge.SerialPortClasses
         {
             if(serialPortSetting == null) return;
 
+            var wasOpen = _safeSerialPort != null && _safeSerialPort.IsOpen;
+
             SerialPortSetting = serialPortSetting;
             Close();
-            Open();
+
+            if (wasOpen)
+            {
+                Open();
+            }
         }
 
         private void ApplyPortConfig()

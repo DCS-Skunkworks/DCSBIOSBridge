@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Text;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using NLog;
 using NLog.Targets;
@@ -14,6 +15,9 @@ namespace DCSBIOSBridge.misc
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static readonly Encoding UsedEncoding = Encoding.GetEncoding(28591);
+        public static MouseEventHandler MouseEnter => UIElement_OnMouseEnterHandIcon;
+        public static MouseEventHandler MouseLeave => UIElement_OnMouseLeaveNormalIcon;
+
 
 
         public static List<string> GetSerialPortNames()
@@ -155,6 +159,16 @@ namespace DCSBIOSBridge.misc
                     }
                 }
             }
+        }
+
+        public static void UIElement_OnMouseEnterHandIcon(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Hand;
+        }
+
+        public static void UIElement_OnMouseLeaveNormalIcon(object sender, MouseEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Arrow;
         }
     }
 }

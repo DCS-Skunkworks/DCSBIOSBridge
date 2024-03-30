@@ -1,5 +1,6 @@
 ﻿using System.IO.Ports;
 using System.Windows;
+using System.Windows.Input;
 using DCSBIOSBridge.misc;
 using DCSBIOSBridge.SerialPortClasses;
 
@@ -27,10 +28,10 @@ namespace DCSBIOSBridge.Windows
         private void SerialPortConfigWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             //PopulateCombos();
-            ShowValues();
+            ShowSettings();
         }
 
-        private void ShowValues()
+        private void ShowSettings()
         {
             LabelSerialPortName.Content = SerialPortSetting.ComPort;
             ComboBoxBaud.SelectedValue = SerialPortSetting.BaudRate;
@@ -79,5 +80,21 @@ namespace DCSBIOSBridge.Windows
         }
 
         public SerialPortSetting SerialPortSetting { get; set; } = new();
+
+
+        private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                var serialSetting  = new SerialPortSetting();
+                serialSetting.ComPort = SerialPortSetting.ComPort;
+                SerialPortSetting = serialSetting;
+                ShowSettings();
+            }
+            catch (Exception ex)
+            {
+                Common.ShowErrorMessageBox(ex);
+            }
+        }
     }
 }

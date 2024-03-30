@@ -463,7 +463,7 @@ namespace DCSBIOSBridge.UserControls
                 {
                     return string.Join("\n", _lastDCSBIOSCommands.ToList());
                 }
-            } 
+            }
             set
             {
                 lock (_dcsbiosCommandsLock)
@@ -493,8 +493,9 @@ namespace DCSBIOSBridge.UserControls
             {
                 var serialPortConfigWindow = new SerialPortConfigWindow(_serialPortShell.SerialPortSetting)
                 {
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                    Owner = Application.Current.MainWindow
                 };
+
                 if (serialPortConfigWindow.ShowDialog() == true)
                 {
                     _serialPortShell.ApplyPortConfig(serialPortConfigWindow.SerialPortSetting);
@@ -511,7 +512,13 @@ namespace DCSBIOSBridge.UserControls
         {
             try
             {
-                Dispatcher.Invoke(() => LastDCSBIOSCommand = e.Command);
+                Dispatcher.Invoke(() =>
+                {
+                    if (e.Sender == Name)
+                    {
+                        LastDCSBIOSCommand = e.Command;
+                    }
+                });
             }
             catch (Exception ex)
             {
