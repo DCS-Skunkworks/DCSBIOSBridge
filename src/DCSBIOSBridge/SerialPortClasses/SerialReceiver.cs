@@ -53,7 +53,7 @@ internal class SerialReceiver : ISerialReceiver, IDisposable
                         {
                             if (command.Trim().Length == 0 || !command.EndsWith('\n')) continue;
 
-                            await DCSBIOS.Send(command);
+                            await DCSBIOS.SendAsync(SerialPort.PortName, command);
                             DBEventManager.BroadCastSerialData(SerialPort.PortName, command.Length, StreamInterface.SerialPortRead);
                         }
                         // When all commands have been processed they can be removed from the buffer

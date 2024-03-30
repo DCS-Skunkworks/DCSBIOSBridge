@@ -3,10 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:misc="clr-namespace:DCSBIOSBridge.misc"
         mc:Ignorable="d"
-        Title="SerialPort Configuration" Height="350" Width="320" Icon="/images/app_image.jpg" UseLayoutRounding="True" RenderOptions.BitmapScalingMode="Fant" Loaded="SerialPortConfigWindow_OnLoaded">
+        WindowStartupLocation="CenterOwner"
+        Title="SerialPort Configuration" Height="390" Width="320" Icon="/images/app_image.jpg" UseLayoutRounding="True" RenderOptions.BitmapScalingMode="Fant" Loaded="SerialPortConfigWindow_OnLoaded">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
@@ -89,7 +93,10 @@
             <ComboBoxItem >40000</ComboBoxItem>
             <ComboBoxItem >3600000</ComboBoxItem>
         </ComboBox>
-        <StackPanel Orientation="Horizontal" Grid.Column="0"  Grid.Row="9" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Right">
+
+        <Label Content="revert to default settings" FontSize="9" Foreground="#0000FF" MouseEnter="{x:Static misc:Common.MouseEnter}" MouseLeave="{x:Static misc:Common.MouseLeave}" MouseDown="UIElement_OnMouseDown" VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="11"></Label>
+
+        <StackPanel Orientation="Horizontal" Grid.Column="0"  Grid.Row="12"  Grid.ColumnSpan="2" HorizontalAlignment="Right">
             <Button Content="Ok" Height="23" VerticalAlignment="Bottom" Margin="10,0,0,10"  Width="75" Click="ButtonOk_OnClick" />
             <Button Content="Cancel" Height="23" VerticalAlignment="Bottom" Margin="10,0,10,10" Width="75" Click="ButtonCancel_OnClick" />
         </StackPanel>
