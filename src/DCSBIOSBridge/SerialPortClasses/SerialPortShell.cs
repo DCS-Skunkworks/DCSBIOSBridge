@@ -1,12 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
-using System.Threading.Channels;
 using DCS_BIOS.EventArgs;
 using DCS_BIOS.Interfaces;
 using DCSBIOSBridge.Events;
 using DCSBIOSBridge.Events.Args;
-using DCSBIOSBridge.Interfaces;
 using DCSBIOSBridge.misc;
 using Microsoft.Win32;
 using NLog;
@@ -38,7 +37,7 @@ namespace DCSBIOSBridge.SerialPortClasses
         VIDPID
     }
 
-    public class SerialPortShell : IAsyncDcsBiosBulkDataListener, IDisposable
+    public class SerialPortShell : IDcsBiosBulkDataListener, IDisposable
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -46,7 +45,7 @@ namespace DCSBIOSBridge.SerialPortClasses
 
         private SafeSerialPort _safeSerialPort;
         private SerialReceiver _serialReceiver;
-        private readonly Channel<byte[]> _serialDataChannel = Channel.CreateUnbounded<byte[]>();
+        private readonly ConcurrentQueue<byte[]> _serialDataQueue = new();
         private AutoResetEvent _serialDataWaitingForWriteResetEvent = new(false);
         private bool _shutdown;
         private bool _portShouldBeOpen;
@@ -62,7 +61,7 @@ namespace DCSBIOSBridge.SerialPortClasses
             var thread = new Thread(CheckPortOpen);
             thread.Start();
             
-            BIOSEventHandler.AttachAsyncBulkDataListener(this);
+            BIOSEventHandler.AttachBulkDataListener(this);
         }
 
         #region IDisposable Support
@@ -79,7 +78,7 @@ namespace DCSBIOSBridge.SerialPortClasses
 
                 Debug.WriteLine($"Disposing shell for {SerialPortSetting.ComPort}");
                 
-                BIOSEventHandler.DetachAsyncBulkDataListener(this);
+                BIOSEventHandler.DetachBulkDataListener(this);
                 //  dispose managed state (managed objects).
                 _serialDataWaitingForWriteResetEvent?.Set();
                 _serialDataWaitingForWriteResetEvent?.Close();
@@ -142,7 +141,7 @@ namespace DCSBIOSBridge.SerialPortClasses
 
             _portShouldBeOpen = true;
 
-            _ = Task.Run(AsyncSerialDataWrite);
+            _ = Task.Run(SerialDataWrite);
             DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Opened);
         }
 
@@ -173,11 +172,11 @@ namespace DCSBIOSBridge.SerialPortClasses
             }
         }
 
-        public async Task AsyncDcsBiosBulkDataReceived(object sender, DCSBIOSBulkDataEventArgs e)
+        public void DcsBiosBulkDataReceived(object sender, DCSBIOSBulkDataEventArgs e)
         {
             try
             {
-                await QueueSerialData(e.Data);
+                QueueSerialData(e.Data);
             }
             catch (Exception ex)
             {
@@ -218,16 +217,15 @@ namespace DCSBIOSBridge.SerialPortClasses
             GetFriendlyName();
         }
 
-        private async Task QueueSerialData(byte[] data)
+        private void QueueSerialData(byte[] data)
         {
             if (data == null || data.Length == 0 || _safeSerialPort == null || !_safeSerialPort.IsOpen) return;
 
-            var cts = new CancellationTokenSource(Constants.MS100);
-            await _serialDataChannel.Writer.WriteAsync(data, cts.Token);
+            _serialDataQueue.Enqueue(data);
             _serialDataWaitingForWriteResetEvent.Set();
         }
 
-        private async Task AsyncSerialDataWrite()
+        private void SerialDataWrite()
         {
             while (true)
             {
@@ -236,28 +234,27 @@ namespace DCSBIOSBridge.SerialPortClasses
                     _serialDataWaitingForWriteResetEvent.WaitOne();
                     if (_shutdown || _safeSerialPort == null || !_safeSerialPort.IsOpen) break;
 
-                    var cts = new CancellationTokenSource(Constants.MS100);
-                    var serialDataArray = await _serialDataChannel.Reader.ReadAsync(cts.Token);
-
-                    var cts2 = new CancellationTokenSource(Constants.MS200);
-                    await _safeSerialPort.BaseStream.WriteAsync(serialDataArray, 0, serialDataArray.Length, cts2.Token);
-                    DBEventManager.BroadCastSerialData(ComPort, serialDataArray.Length, StreamInterface.SerialPortWritten);
+                    var success = _serialDataQueue.TryDequeue(out var data);
+                    if(!success) continue;
+                    
+                    _safeSerialPort.BaseStream.Write(data, 0, data.Length);
+                    DBEventManager.BroadCastSerialData(ComPort, data.Length, StreamInterface.SerialPortWritten);
                 }
                 catch (OperationCanceledException e)
                 {
-                    Logger.Error("AsyncSerialDataWrite failed => {0}", e);
+                    Logger.Error("SerialDataWrite failed => {0}", e);
                     DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Error);
                     break;
                 }
                 catch (IOException e)
                 {
-                    Logger.Error("AsyncSerialDataWrite failed => {0}", e);
+                    Logger.Error("SerialDataWrite failed => {0}", e);
                     DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.IOError);
                     break;
                 }
                 catch (Exception e)
                 {
-                    Logger.Error("AsyncSerialDataWrite failed => {0}", e);
+                    Logger.Error("SerialDataWrite failed => {0}", e);
                     DBEventManager.BroadCastPortStatus(SerialPortSetting.ComPort, SerialPortStatus.Error);
                     break;
                 }

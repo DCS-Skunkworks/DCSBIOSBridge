@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO.Ports;
-using System.Management;
+﻿using System.Management;
 using DCSBIOSBridge.Events;
 using DCSBIOSBridge.Events.Args;
 using DCSBIOSBridge.Interfaces;
