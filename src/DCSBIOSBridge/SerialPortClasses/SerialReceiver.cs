@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.IO.Ports;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -30,9 +29,9 @@ internal class SerialReceiver : ISerialReceiver, IDisposable
         ReadFromSerialPortSemaphore?.Dispose();
     }
 
-    public async void ReceiveTextOverSerial(object sender, SerialDataReceivedEventArgs e)
+    public void ReceiveTextOverSerial(object sender, SerialDataReceivedEventArgs e)
     {
-        await ReadFromSerialPortSemaphore.WaitAsync();
+        ReadFromSerialPortSemaphore.Wait();
 
         switch (e.EventType)
         {
@@ -42,8 +41,8 @@ internal class SerialReceiver : ISerialReceiver, IDisposable
                     {
                         Logger.Debug($"SerialPort.Buffer = {SerialPort.BytesToRead}");
                         var byteArray = new byte[SerialPort.BytesToRead];
-                        var cts = new CancellationTokenSource(Constants.MS1000);
-                        var bytesRead = await SerialPort.BaseStream.ReadAsync(byteArray, 0, byteArray.Length, cts.Token);
+                        
+                        var bytesRead = SerialPort.BaseStream.Read(byteArray, 0, byteArray.Length);
 
                         _incomingData.Append(Common.UsedEncoding.GetString(byteArray, 0, bytesRead));
 
@@ -53,7 +52,7 @@ internal class SerialReceiver : ISerialReceiver, IDisposable
                         {
                             if (command.Trim().Length == 0 || !command.EndsWith('\n')) continue;
 
-                            await DCSBIOS.SendAsync(SerialPort.PortName, command);
+                            DCSBIOS.Send(SerialPort.PortName, command);
                             DBEventManager.BroadCastSerialData(SerialPort.PortName, command.Length, StreamInterface.SerialPortRead);
                         }
                         // When all commands have been processed they can be removed from the buffer
