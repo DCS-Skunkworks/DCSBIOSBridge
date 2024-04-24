@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
+using DCS_BIOS;
 using DCSBIOSBridge.Properties;
 
 namespace DCSBIOSBridge.Windows
@@ -56,6 +57,7 @@ namespace DCSBIOSBridge.Windows
             TextBoxDCSBIOSToIP.TextChanged += DcsBiosDirty;
             TextBoxDCSBIOSFromPort.TextChanged += DcsBiosDirty;
             TextBoxDCSBIOSToPort.TextChanged += DcsBiosDirty;
+            TextBoxDCSBIOSCommandDelay.TextChanged += DcsBiosDirty;
         }
 
         private void LoadSettings()
@@ -64,6 +66,7 @@ namespace DCSBIOSBridge.Windows
             TextBoxDCSBIOSToIP.Text = Settings.Default.DCSBiosIPTo;
             TextBoxDCSBIOSFromPort.Text = Settings.Default.DCSBiosPortFrom;
             TextBoxDCSBIOSToPort.Text = Settings.Default.DCSBiosPortTo;
+            TextBoxDCSBIOSCommandDelay.Text = Settings.Default.DelayBetweenCommands.ToString();
         }
 
         private void ButtonCancel_OnClick(object sender, RoutedEventArgs e)
@@ -84,7 +87,10 @@ namespace DCSBIOSBridge.Windows
                     Settings.Default.DCSBiosPortFrom = PortFromDCSBIOS;
                     Settings.Default.DCSBiosIPTo = IpAddressToDCSBIOS;
                     Settings.Default.DCSBiosPortTo = PortToDCSBIOS;
+                    Settings.Default.DelayBetweenCommands = Convert.ToInt32(TextBoxDCSBIOSCommandDelay.Text);
                     Settings.Default.Save();
+
+                    DCSBIOS.GetInstance().DelayBetweenCommands = Convert.ToInt32(TextBoxDCSBIOSCommandDelay.Text);
                 }
                 
                 DialogResult = true;
@@ -157,6 +163,18 @@ namespace DCSBIOSBridge.Windows
                 catch (Exception ex)
                 {
                     throw new Exception($"DCS-BIOS Error while Port to : {ex.Message}");
+                }
+                try
+                {
+                    var delayValue = Convert.ToInt32(TextBoxDCSBIOSCommandDelay.Text);
+                    if (delayValue == 0)
+                    {
+                        throw new Exception("Delay cannot be zero.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"DCS-BIOS Delay between DCS-BIOS commands : {ex.Message}");
                 }
             }
             catch (Exception ex)
