@@ -608,6 +608,8 @@ namespace DCSBIOSBridge
             {
                 ControlSpinningWheel.RotateGear(2000);
             }
+
+            _dcsBios.DelayBetweenCommands = Settings.Default.DelayBetweenCommands;
         }
 
         private void MenuItemLogFile_OnClick(object sender, RoutedEventArgs e)
