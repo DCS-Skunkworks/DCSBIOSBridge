@@ -4,6 +4,9 @@
 [![GitHub release](https://img.shields.io/github/release/DCS-Skunkworks/DCSBIOSBridge.svg)](https://github.com/DCS-Skunkworks/DCSBIOSBridge/releases)
 [![Discord](https://img.shields.io/discord/533342958712258572)](https://discord.gg/5svGwKX)
 
+> [!CAUTION]
+> This project currently does not have a maintainer and is not receiving updates. If you're interested in contributing to or maintaining this project, please get in touch on Discord.
+
  Handles communication between DCS-BIOS and serial ports
 
  Visit the [Wiki](https://github.com/DCS-Skunkworks/DCSBIOSBridge/wiki) for more information.
